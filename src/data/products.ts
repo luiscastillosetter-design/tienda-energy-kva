@@ -10,6 +10,9 @@ export interface Product {
   stock?: number;
 }
 
+export const FALLBACK_INDUSTRIAL_SVG =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none"><rect width="400" height="400" rx="32" fill="%230A0E17"/><circle cx="200" cy="200" r="120" stroke="%230044FF" stroke-width="4" stroke-dasharray="12 12" opacity="0.5"/><circle cx="200" cy="200" r="85" fill="%230044FF" fill-opacity="0.15" stroke="%2300E5FF" stroke-width="3"/><path d="M215 115L145 215H200L185 285L255 185H200L215 115Z" fill="%2300E5FF" stroke="%23FFFFFF" stroke-width="4" stroke-linejoin="round"/><text x="200" y="355" text-anchor="middle" fill="%2300E5FF" font-family="sans-serif" font-weight="900" font-size="18" letter-spacing="4">ENERGY KVA</text></svg>';
+
 export const products: Product[] = [
   {
     id: 'transformador-25kva',
@@ -17,7 +20,7 @@ export const products: Product[] = [
     price: 1450.00,
     badge: 'Industrial',
     category: 'TRANSFORMADORES',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Transformador en baño de aceite diseñado para tendidos eléctricos, fincas y zonas agroindustriales en Portuguesa con garantía certificada.',
     features: [
       'Capacidad nominal: 25 KVA',
@@ -33,7 +36,7 @@ export const products: Product[] = [
     price: 2350.00,
     badge: 'Alta Tensión',
     category: 'TRANSFORMADORES',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Transformador convencional de alta eficiencia para proyectos agroindustriales, urbanismos y plantas procesadoras.',
     features: [
       'Potencia continua: 50 KVA',
@@ -49,7 +52,7 @@ export const products: Product[] = [
     price: 145.00,
     badge: 'Stock Limitado',
     category: 'RESPALDO',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Batería LiFePO4 de alta duración con salidas AC 110V onda pura, USB-C PD y panel LED. Ideal para mantener operativos routers, laptops, puntos de venta y ventiladores.',
     features: [
       'Potencia continua: 300W (Picos de 600W)',
@@ -65,7 +68,7 @@ export const products: Product[] = [
     price: 3490.00,
     badge: 'Envío Gratis',
     category: 'RESPALDO',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Generador industrial diésel con cabina ultra silenciosa y tablero de transferencia automática (ATS) incluido para respaldo continuo.',
     features: [
       'Potencia Standby: 15 KVA (120V/240V)',
@@ -81,7 +84,7 @@ export const products: Product[] = [
     price: 38.00,
     badge: 'Oferta',
     category: 'ILUMINACION',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Alumbrado público e industrial autónomo de alto flujo luminoso con panel solar monocristalino integrado y sensor radar.',
     features: [
       'Potencia lumínica: 150W LED SMD de alto brillo',
@@ -97,7 +100,7 @@ export const products: Product[] = [
     price: 19.00,
     badge: 'Certificado',
     category: 'CONDUCTORES',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Electrodo de acero con recubrimiento electrolítico de cobre puro para sistemas de aterramiento de transformadores, pararrayos y tableros.',
     features: [
       'Longitud reglamentaria: 2.40 metros',
@@ -113,7 +116,7 @@ export const products: Product[] = [
     price: 68.00,
     badge: 'Oferta',
     category: 'HERRAMIENTAS',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Prensa terminales hidráulica de alto tonelaje con juego completo de dados hexagonales para cables de cobre y aluminio de alta y baja tensión.',
     features: [
       'Fuerza de compresión: 16 Toneladas',
@@ -129,7 +132,7 @@ export const products: Product[] = [
     price: 115.00,
     badge: 'Envío Gratis',
     category: 'PROTECCION',
-    images: [],
+    images: [FALLBACK_INDUSTRIAL_SVG],
     description: 'Dispositivo de protección contra sobretensiones transitorias (DPS) y descargas atmosféricas para tableros principales y maquinaria.',
     features: [
       'Capacidad de descarga máxima: 100 kA',

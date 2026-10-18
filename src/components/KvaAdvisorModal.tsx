@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { useCartStore } from '@/store/cartStore';
-import { products as localCatalog } from '@/data/products';
+import { productService } from '@/services/productService';
+import type { Product } from '@/data/products';
 
 const COMMON_APPLIANCES = [
   { name: 'Aire Acond. 12.000 BTU', watts: 1200, category: 'Climatización' },
@@ -34,11 +35,13 @@ export function KvaAdvisorModal() {
   const [clientCompany, setClientCompany] = useState('');
   const [clientContact, setClientContact] = useState('');
   const [showQuotationView, setShowQuotationView] = useState(false);
+  
+  const [liveCatalog, setLiveCatalog] = useState<Product[]>([]);
 
   const { currency, bcvRate, addItem, toggleCart } = useCartStore();
 
   useEffect(() => {
-    // Si el usuario cerró el globo de IA, no vuelve a salir en esta pestaña
+    productService.getProducts().then(setLiveCatalog);
     if (sessionStorage.getItem('dismiss_advisor') === 'true') {
       setIsDismissed(true);
     }
@@ -105,13 +108,13 @@ export function KvaAdvisorModal() {
     const cleanPhone = String(siteConfig.contact.whatsapp).replace(/\D/g, '');
     const itemsText = (result.b2bItems || [])
       .map((item: any) => {
-        const prod = localCatalog.find((p) => p.id === item.productId);
+        const prod = liveCatalog.find((p) => p.id === item.productId);
         return `• ${item.quantity}x *${prod?.title || item.productId}* ($${((prod?.price || 0) * item.quantity).toFixed(2)})`;
       })
       .join('\n');
 
     const totalUSD = (result.b2bItems || []).reduce((acc: number, item: any) => {
-      const prod = localCatalog.find((p) => p.id === item.productId);
+      const prod = liveCatalog.find((p) => p.id === item.productId);
       return acc + (prod?.price || 0) * item.quantity;
     }, 0);
 
@@ -130,7 +133,6 @@ export function KvaAdvisorModal() {
 
   return (
     <>
-      {/* BOTÓN FLOTANTE LATERAL (No tapa el centro del BottomNav) */}
       <div className="fixed bottom-[90px] md:bottom-8 right-4 sm:right-6 z-[100] group">
         <button
           type="button"
@@ -145,17 +147,16 @@ export function KvaAdvisorModal() {
           <span className="hidden md:inline drop-shadow-sm font-black relative z-10">Dimensionar Carga (AI)</span>
         </button>
 
-        {/* Botón miniatura de X para cerrar el asesor en móvil y PC */}
+        {/* La X ahora es visible en móvil SIEMPRE y oculta en PC hasta hacer hover */}
         <button 
           onClick={handleDismiss}
-          className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white w-6 h-6 rounded-full flex items-center justify-center cursor-pointer shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-50"
           aria-label="Cerrar botón IA"
         >
-          <X className="w-3 h-3" />
+          <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* MODAL IA */}
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 bg-[#03060D]/85 backdrop-blur-md overflow-y-auto">
           <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-[#060A14] border border-white/10 text-slate-100 shadow-[0_25px_60px_-15px_rgba(0,180,255,0.25)] overflow-hidden">
@@ -196,7 +197,6 @@ export function KvaAdvisorModal() {
             <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-6 scrollbar-hide bg-[#060A14]">
               {!result ? (
                 <>
-                  {/* SELECCIÓN RÁPIDA */}
                   <div>
                     <label className="block text-[11px] font-black uppercase tracking-wider text-cyan-400 mb-3">
                       1. Selecciona equipos de tu instalación:
@@ -225,7 +225,6 @@ export function KvaAdvisorModal() {
                     </div>
                   </div>
 
-                  {/* LENGUAJE NATURAL */}
                   <div>
                     <label className="block text-[11px] font-black uppercase tracking-wider text-cyan-400 mb-2">
                       2. O describe tu proyecto con tus propias palabras:
@@ -239,7 +238,6 @@ export function KvaAdvisorModal() {
                     />
                   </div>
 
-                  {/* AVISO DE MARGEN */}
                   <div className="p-4 rounded-xl bg-[#051024] border border-blue-500/20 flex items-start gap-3">
                     <ShieldCheck className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
                     <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-medium">
@@ -250,9 +248,7 @@ export function KvaAdvisorModal() {
                   </div>
                 </>
               ) : (
-                /* RESULTADOS */
                 <div className="space-y-6">
-                  {/* METRICAS */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="p-4 rounded-xl bg-[#0A101D] border border-white/5 flex flex-col">
                       <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Demanda Nominal Total</span>
@@ -268,7 +264,6 @@ export function KvaAdvisorModal() {
                     </div>
                   </div>
 
-                  {/* DICTAMEN */}
                   <div className="p-5 rounded-xl liquid-glass-dark border border-white/10">
                     <h3 className="text-[11px] font-black uppercase tracking-wider text-cyan-400 mb-2 flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Dictamen de Ingeniería
@@ -278,14 +273,13 @@ export function KvaAdvisorModal() {
                     </p>
                   </div>
 
-                  {/* RECOMENDACIONES EN STOCK */}
                   <div>
                     <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-300 mb-3">
                       Equipos Disponibles en Stock:
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {(result.b2bItems || []).map((item: any) => {
-                        const prod = localCatalog.find((p) => p.id === item.productId);
+                        const prod = liveCatalog.find((p) => p.id === item.productId);
                         if (!prod) return null;
                         return (
                           <div key={prod.id} className="p-4 rounded-xl bg-[#0A101D] border border-white/10 flex flex-col justify-between">
@@ -314,7 +308,6 @@ export function KvaAdvisorModal() {
                     </div>
                   </div>
 
-                  {/* COTIZADOR B2B */}
                   <div className="pt-4 border-t border-white/5">
                     <button
                       type="button"
@@ -379,7 +372,6 @@ export function KvaAdvisorModal() {
               )}
             </div>
 
-            {/* FOOTER MODAL */}
             <div className="px-6 py-4 border-t border-white/5 bg-[#03050A] flex items-center justify-between flex-shrink-0">
               {result ? (
                 <button

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products } from '@/data/products';
+import { productService } from '@/services/productService';
 
 // ALMACÉN EN MEMORIA: BLINDAJE CONTRA DRENADO DE TOKENS (Rate Limiting)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
     if (!mwapiBaseUrl.endsWith('/v1')) mwapiBaseUrl += '/v1';
     
     const mwapiKey = process.env.MWAPI_API_KEY || '';
-    // Usamos por defecto el modelo validado en tu panel (Haiku 4.5) si no está en el .env
     const mwapiModel = process.env.MWAPI_MODEL || 'claude-haiku-4-5-20251001';
 
     if (!mwapiKey) {
@@ -66,7 +65,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Catálogo activo (Limitado para no exceder tokens de contexto)
+    // 4. Catálogo activo (Extracción en VIVO de Supabase / Base Local)
+    const products = await productService.getProducts();
     const catalogSummary = products.map((p) => ({
       id: p.id,
       title: p.title,
@@ -117,7 +117,7 @@ Debes responder ESTRICTAMENTE en formato JSON válido (sin texto fuera del JSON 
         model: mwapiModel,
         max_tokens: 800,
         temperature: 0.1,
-        system: systemInstruction, // Propiedad separada, obligatoria en Anthropic
+        system: systemInstruction,
         messages: [
           { role: 'user', content: userMessage }
         ]
@@ -135,11 +135,8 @@ Debes responder ESTRICTAMENTE en formato JSON válido (sin texto fuera del JSON 
     }
 
     const data = await mwapiResponse.json();
-    
-    // Anthropic devuelve la respuesta dentro de un array de content blocks
     const rawContent = data.content?.[0]?.text || '';
 
-    // Extraer bloque JSON limpio en caso de que el modelo haya agregado comillas invertidas (```json)
     const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       console.error('Respuesta en bruto de la IA (No JSON):', rawContent);

@@ -1,13 +1,14 @@
 import { supabase } from '@/lib/supabase';
-import { products as fallbackLocalProducts, type Product } from '@/data/products';
-
-const FALLBACK_INDUSTRIAL_SVG =
-  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none"><rect width="400" height="400" rx="32" fill="%230A0E17"/><circle cx="200" cy="200" r="120" stroke="%230044FF" stroke-width="4" stroke-dasharray="12 12" opacity="0.5"/><circle cx="200" cy="200" r="85" fill="%230044FF" fill-opacity="0.15" stroke="%2300E5FF" stroke-width="3"/><path d="M215 115L145 215H200L185 285L255 185H200L215 115Z" fill="%2300E5FF" stroke="%23FFFFFF" stroke-width="4" stroke-linejoin="round"/><text x="200" y="355" text-anchor="middle" fill="%2300E5FF" font-family="sans-serif" font-weight="900" font-size="18" letter-spacing="4">ENERGY KVA</text></svg>';
+import {
+  products as fallbackLocalProducts,
+  FALLBACK_INDUSTRIAL_SVG,
+  type Product,
+} from '@/data/products';
 
 const formatProduct = (item: any): Product => {
   const stockQty = Number(item.stock ?? 100);
   let parsedImages: string[] = [];
-  
+
   if (Array.isArray(item.images)) {
     parsedImages = item.images.filter(Boolean);
   } else if (typeof item.images === 'string' && item.images.trim() !== '') {
@@ -19,7 +20,11 @@ const formatProduct = (item: any): Product => {
     }
   }
 
-  // Si no hay imagen válida provista por el admin o la DB, se inyecta directamente el emblema KVA
+  // Si la imagen es una ruta vieja inexistente (/products/...) o está vacía, usar el emblema fondo negro #0A0E17
+  parsedImages = parsedImages.map((img) =>
+    img.startsWith('/products/') ? FALLBACK_INDUSTRIAL_SVG : img
+  );
+
   if (parsedImages.length === 0) {
     parsedImages = [FALLBACK_INDUSTRIAL_SVG];
   }
@@ -28,42 +33,97 @@ const formatProduct = (item: any): Product => {
     id: String(item.id),
     title: String(item.title || ''),
     price: Number(item.price) || 0,
-    category: String(item.category || 'General'),
+    category: String(item.category || 'TRANSFORMADORES'),
     stock: stockQty,
-    badge: stockQty <= 0 ? 'Agotado' : (Number(item.price) >= 50 ? 'Envío Gratis' : 'Oferta KVA'),
+    badge:
+      item.badge ||
+      (stockQty <= 0
+        ? 'Agotado'
+        : Number(item.price) >= 50
+          ? 'Envío Gratis'
+          : 'Oferta KVA'),
     images: parsedImages,
-    description: item.description || `${item.title}. Equipo de grado industrial con garantía oficial ENERGY KVA.`,
-    features: Array.isArray(item.features) && item.features.length > 0 
-      ? item.features 
-      : ['Garantía directa de tienda', 'Despacho a nivel nacional'],
+    description:
+      item.description ||
+      `${item.title}. Equipo de grado industrial con garantía oficial ENERGY KVA.`,
+    features:
+      Array.isArray(item.features) && item.features.length > 0
+        ? item.features
+        : ['Garantía directa de tienda', 'Despacho a nivel nacional'],
   };
 };
 
-const getLocalData = (key: string) => {
+const getDeletedIds = (): string[] => {
   if (typeof window !== 'undefined') {
-    const data = localStorage.getItem(key);
-    if (data) return JSON.parse(data);
+    try {
+      const raw = localStorage.getItem('kva_deleted_product_ids');
+      if (raw) return JSON.parse(raw);
+    } catch {}
   }
-  return null;
+  return [];
+};
+
+const mergeWithBaseCatalog = (remoteList: any[]): Product[] => {
+  const deletedIds = new Set(getDeletedIds());
+  const map = new Map<string, Product>();
+
+  // 1. Poner primero los productos que vienen de Supabase / Admin
+  for (const item of remoteList) {
+    const formatted = formatProduct(item);
+    if (!deletedIds.has(formatted.id)) {
+      map.set(formatted.id, formatted);
+    }
+  }
+
+  // 2. Garantizar que los 8 productos industriales de muestra estén siempre presentes (salvo que hayan sido borrados explícitamente)
+  for (const baseProd of fallbackLocalProducts) {
+    if (!deletedIds.has(baseProd.id) && !map.has(baseProd.id)) {
+      map.set(baseProd.id, formatProduct(baseProd));
+    }
+  }
+
+  return Array.from(map.values());
 };
 
 export const productService = {
   async getProducts(): Promise<Product[]> {
     try {
-      // 1. Prioridad Máxima: Leer base de datos local en vivo (Para que los cambios del /admin se vean instantáneos)
-      const localDB = getLocalData('kva_products_db');
-      if (localDB && Array.isArray(localDB) && localDB.length > 0) {
-        return localDB.map(formatProduct);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        const existingIds = new Set(data.map((d: any) => String(d.id)));
+        const deletedIds = new Set(getDeletedIds());
+
+        // Detectar cuáles de los 8 productos base aún no están en Supabase para sembrarlos automáticamente
+        const missingBaseProducts = fallbackLocalProducts.filter(
+          (bp) => !existingIds.has(bp.id) && !deletedIds.has(bp.id)
+        );
+
+        if (missingBaseProducts.length > 0) {
+          supabase
+            .from('products')
+            .upsert(missingBaseProducts, { onConflict: 'id' })
+            .then(() => {});
+        }
+
+        const merged = mergeWithBaseCatalog(data);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('kva_products_db', JSON.stringify(merged));
+        }
+        return merged;
       }
 
-      // 2. Prioridad Secundaria: Intentar Supabase
-      const { data, error } = await supabase.from('products').select('*').order('id', { ascending: true });
-      if (!error && data && data.length > 0) {
-        if (typeof window !== 'undefined') localStorage.setItem('kva_products_db', JSON.stringify(data));
-        return data.map(formatProduct);
+      // Si Supabase no responde, usar caché local fusionada con los 8 productos base
+      if (typeof window !== 'undefined') {
+        const localRaw = localStorage.getItem('kva_products_db');
+        if (localRaw) {
+          return mergeWithBaseCatalog(JSON.parse(localRaw));
+        }
       }
 
-      // 3. Fallback: Base de datos industrial mockeada
       return fallbackLocalProducts.map(formatProduct);
     } catch (err) {
       return fallbackLocalProducts.map(formatProduct);
@@ -73,18 +133,36 @@ export const productService = {
   async getProductById(id: string): Promise<Product | undefined> {
     try {
       const allProducts = await this.getProducts();
-      return allProducts.find(p => String(p.id) === String(id));
+      return allProducts.find((p) => String(p.id) === String(id));
     } catch (err) {
-      return fallbackLocalProducts.map(formatProduct).find(p => String(p.id) === String(id));
+      return fallbackLocalProducts
+        .map(formatProduct)
+        .find((p) => String(p.id) === String(id));
     }
   },
 
-  async getRelatedProducts(category: string, currentProductId: string): Promise<Product[]> {
+  async getRelatedProducts(
+    category: string,
+    currentProductId: string
+  ): Promise<Product[]> {
     try {
       const allProducts = await this.getProducts();
-      return allProducts.filter(p => p.category.toUpperCase() === category.toUpperCase() && String(p.id) !== String(currentProductId)).slice(0, 10);
+      return allProducts
+        .filter(
+          (p) =>
+            p.category.toUpperCase() === category.toUpperCase() &&
+            String(p.id) !== String(currentProductId)
+        )
+        .slice(0, 10);
     } catch (err) {
-      return fallbackLocalProducts.map(formatProduct).filter(p => p.category.toUpperCase() === category.toUpperCase() && String(p.id) !== String(currentProductId)).slice(0, 10);
+      return fallbackLocalProducts
+        .map(formatProduct)
+        .filter(
+          (p) =>
+            p.category.toUpperCase() === category.toUpperCase() &&
+            String(p.id) !== String(currentProductId)
+        )
+        .slice(0, 10);
     }
-  }
+  },
 };

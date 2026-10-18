@@ -112,18 +112,18 @@ function CatalogoContent() {
   };
 
   return (
-    <div className="w-full min-h-screen pb-24 pt-28 md:pt-36 text-slate-900 relative z-10 bg-robot-skin">
-      <div className="lamina-blanca bg-robot-skin chasis-bisel mx-1 sm:mx-2 md:mx-4 py-8 md:py-10">
-        {/* Banner Superior Industrial */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28 mb-6">
-          <div className="relative overflow-hidden rounded-[2rem] liquid-glass-dark p-6 sm:p-8 md:p-12 shadow-2xl">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="w-full min-h-screen pb-24 pt-32 sm:pt-36 md:pt-44 text-slate-900 relative z-10 bg-robot-skin">
+      <div className="lamina-blanca bg-robot-skin chasis-bisel mx-1 sm:mx-2 md:mx-4 py-6 sm:py-8 md:py-10">
+        {/* HERO DEL CATÁLOGO */}
+        <div className="w-full px-3 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28 mb-6">
+          <div className="relative overflow-hidden rounded-xl border border-white/25 bg-[radial-gradient(120%_100%_at_85%_20%,rgba(0,180,255,0.25)_0%,rgba(5,10,24,0.96)_70%),linear-gradient(180deg,#0A1224_0%,#050811_100%)] p-5 sm:p-8 md:p-10 shadow-[0_16px_35px_-10px_rgba(2,6,23,0.65)]">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
               <div>
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-active text-white text-[10px] sm:text-xs font-black uppercase tracking-widest mb-4">
-                  <Zap className="w-3.5 h-3.5 text-white" /> Inventario Oficial
-                  en Vivo
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-lg liquid-glass-active text-white text-[10px] sm:text-xs font-black uppercase tracking-widest mb-3">
+                  <Zap className="w-3.5 h-3.5 text-white" />
+                  <span>Inventario Oficial en Vivo</span>
                 </span>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
                   {currentQuery ? (
                     <>
                       Resultados para{' '}
@@ -135,7 +135,7 @@ function CatalogoContent() {
                     </>
                   )}
                 </h1>
-                <p className="text-slate-300 text-xs md:text-sm mt-3 max-w-2xl font-medium leading-relaxed">
+                <p className="text-slate-300 text-xs sm:text-sm mt-2.5 max-w-2xl font-medium leading-relaxed">
                   {siteConfig.description}
                 </p>
               </div>
@@ -143,17 +143,18 @@ function CatalogoContent() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="px-6 py-3 rounded-full liquid-glass-input text-white hover:text-cyan-400 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-colors flex-shrink-0 w-fit cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl liquid-glass-dark text-white hover:text-cyan-300 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-colors flex-shrink-0 w-fit cursor-pointer"
                 >
-                  Limpiar Búsqueda <SearchX className="w-4 h-4" />
+                  <span>Limpiar Búsqueda</span>
+                  <SearchX className="w-4 h-4" />
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Dock de Categorías con Flechas Laterales */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28 mb-6">
+        {/* Dock de Categorías */}
+        <div className="w-full px-2 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28 mb-4">
           <CategoryDock
             onSelect={handleCategoryClick}
             selectedCategory={activeCategory}
@@ -161,9 +162,9 @@ function CatalogoContent() {
         </div>
 
         {/* Grilla de Productos */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28">
-          <div className="flex items-center justify-between mb-8 border-b border-slate-300 pb-4">
-            <p className="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-wider">
+        <div className="w-full px-3 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28">
+          <div className="flex items-center justify-between mb-6 border-b border-slate-300/80 pb-3">
+            <p className="text-xs sm:text-sm font-bold text-slate-600 uppercase tracking-wider">
               Mostrando{' '}
               <span className="font-black text-blue-600">
                 {filteredProducts.length}
@@ -173,39 +174,39 @@ function CatalogoContent() {
           </div>
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-32">
-              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-6" />
-              <p className="text-slate-500 text-sm font-black uppercase tracking-widest">
+            <div className="flex flex-col items-center justify-center py-28">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-slate-500 text-xs sm:text-sm font-black uppercase tracking-widest">
                 Sincronizando inventario...
               </p>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 liquid-glass-pearl text-center px-4 w-full max-w-4xl mx-auto">
-              <SearchX className="w-16 h-16 text-blue-400 mb-4" />
-              <h3 className="text-xl font-black text-slate-800 mb-2">
+            <div className="flex flex-col items-center justify-center py-20 liquid-glass-pearl text-center px-4 w-full max-w-3xl mx-auto">
+              <SearchX className="w-14 h-14 text-blue-500 mb-4" />
+              <h3 className="text-lg sm:text-xl font-black text-slate-800 mb-2">
                 No se encontraron equipos en esta selección
               </h3>
-              <p className="text-slate-500 text-sm font-medium mb-6">
+              <p className="text-slate-500 text-xs sm:text-sm font-medium mb-6">
                 Prueba buscar con otros términos o visualiza el catálogo
                 completo.
               </p>
               <button
                 type="button"
                 onClick={clearFilters}
-                className="px-8 py-3.5 liquid-glass-active text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg transition-transform hover:-translate-y-1 cursor-pointer"
+                className="px-7 py-3.5 liquid-glass-active text-white font-black text-xs uppercase tracking-wider rounded-full cursor-pointer"
               >
-                Ver Todo el Catálogo
+                <span>Ver Todo el Catálogo</span>
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
               {filteredProducts.map((prod) => (
                 <div
                   key={prod.id}
                   className="liquid-glass-pearl flex flex-col p-4 relative group/card cursor-pointer"
                   onClick={() => router.push(`/product/${prod.id}`)}
                 >
-                  <div className="relative w-full aspect-square rounded-2xl bg-white/85 flex items-center justify-center mb-4 overflow-hidden border border-white shadow-sm">
+                  <div className="relative w-full aspect-square rounded-xl bg-white flex items-center justify-center mb-4 overflow-hidden border border-slate-100 shadow-sm">
                     <img
                       src={prod.images[0] || FALLBACK_INDUSTRIAL_SVG}
                       alt={prod.title}
@@ -213,55 +214,56 @@ function CatalogoContent() {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = FALLBACK_INDUSTRIAL_SVG;
                       }}
-                      className="w-full h-full object-contain p-5 group-hover/card:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain p-4 group-hover/card:scale-105 transition-transform duration-300"
                     />
                     {prod.badge && (
                       <span
-                        className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-sm ${
+                        className={`absolute top-2.5 left-2.5 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm ${
                           prod.badge === 'Agotado'
                             ? 'bg-red-500 text-white'
                             : 'liquid-glass-dark text-cyan-300'
                         }`}
                       >
-                        {prod.badge}
+                        <span>{prod.badge}</span>
                       </span>
                     )}
                   </div>
 
                   <div className="flex flex-col flex-1">
-                    <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1.5">
+                    <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">
                       {prod.category}
                     </span>
                     <h3 className="text-xs sm:text-sm font-bold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover/card:text-blue-700 transition-colors">
                       {prod.title}
                     </h3>
                     <div className="mt-auto mb-4">
-                      <span className="text-xl md:text-2xl font-black text-slate-900 tracking-tight drop-shadow-sm">
+                      <span className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight">
                         {formatPrice(prod.price)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-4 border-t border-slate-200/80">
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-200/80">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddToCart(prod);
                       }}
-                      className="flex-1 liquid-glass-active text-white text-[10px] sm:text-[11px] font-black py-3 sm:py-3.5 rounded-full flex items-center justify-center gap-2 uppercase tracking-wider hover:brightness-110 shadow-md transition-all cursor-pointer"
+                      className="flex-1 liquid-glass-active text-white text-[10px] sm:text-[11px] font-black py-2.5 sm:py-3 rounded-lg flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
                     >
-                      <ShoppingCart className="w-4 h-4" /> Añadir
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <span>Añadir</span>
                     </button>
                     <a
                       href={generateWaLink(prod)}
                       onClick={(e) => e.stopPropagation()}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0 liquid-glass-dark text-slate-200 hover:text-emerald-400 rounded-full flex items-center justify-center transition-colors shadow-md cursor-pointer"
+                      className="w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 liquid-glass-dark text-slate-200 hover:text-emerald-400 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
                       title="Consultar por WhatsApp"
                     >
-                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <MessageCircle className="w-4 h-4" />
                     </a>
                   </div>
                 </div>

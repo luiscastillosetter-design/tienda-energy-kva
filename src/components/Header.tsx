@@ -25,7 +25,7 @@ import { useCartStore } from '@/store/cartStore';
 import { siteConfig } from '@/config/site';
 import AuthModal from './AuthModal';
 
-const iconMap = {
+const iconMap: Record<string, any> = {
   LayoutGrid,
   Zap,
   BatteryCharging,
@@ -58,6 +58,12 @@ function HeaderContent() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [categories, setCategories] = useState<any[]>(siteConfig.categories);
+  const [branding, setBranding] = useState({
+    logoWhite: siteConfig.branding.logoWhite,
+    logoDark: siteConfig.branding.logoDark,
+  });
+
   const isHomePage = pathname === '/';
   const useLightHeader = isScrolled || !isHomePage;
 
@@ -85,6 +91,36 @@ function HeaderContent() {
       })
       .catch(() => {});
   }, [setBcvRate, setUsdtRate]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const localBrand = localStorage.getItem('kva_branding_db');
+      if (localBrand) {
+        try {
+          const pb = JSON.parse(localBrand);
+          setBranding({ 
+            logoWhite: pb.logo_white || siteConfig.branding.logoWhite, 
+            logoDark: pb.logo_dark || siteConfig.branding.logoDark 
+          });
+        } catch (e) {}
+      }
+
+      const localCats = localStorage.getItem('kva_categories_db');
+      if (localCats) {
+        try {
+          const pc = JSON.parse(localCats);
+          if (Array.isArray(pc) && pc.length > 0) {
+            const hasTodos = pc.some((c: any) => c.id === 'Todos');
+            if (!hasTodos) {
+              setCategories([{ id: 'Todos', name: 'Catálogo Completo', shortName: 'Todos', slug: 'todos', iconName: 'LayoutGrid', image: '' }, ...pc]);
+            } else {
+              setCategories(pc);
+            }
+          }
+        } catch (e) {}
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -139,13 +175,15 @@ function HeaderContent() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-[11px] font-black tracking-wider flex-shrink-0">
-            <span className="hidden md:inline text-slate-500 uppercase mr-1">Moneda:</span>
+            <span className="hidden md:inline text-slate-500 uppercase mr-1">
+              Moneda:
+            </span>
             <button
               type="button"
               onClick={() => setCurrency('USD')}
               className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
                 currency === 'USD'
-                  ? 'bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-[0_0_10px_rgba(37,99,235,0.25)]'
+                  ? 'bg-blue-600/20 text-cyan-300 border border-blue-500/50 shadow-[0_0_10px_rgba(37,99,235,0.25)]'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -157,7 +195,7 @@ function HeaderContent() {
               onClick={() => setCurrency('VES')}
               className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
                 currency === 'VES'
-                  ? 'bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-[0_0_10px_rgba(37,99,235,0.25)]'
+                  ? 'bg-blue-600/20 text-cyan-300 border border-blue-500/50 shadow-[0_0_10px_rgba(37,99,235,0.25)]'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -182,24 +220,26 @@ function HeaderContent() {
       <header
         className={`fixed top-[36px] left-0 right-0 z-40 transition-all duration-300 ${
           useLightHeader
-            ? 'liquid-glass-light py-2.5 md:py-3'
-            : 'bg-gradient-to-b from-[#07090E]/90 via-[#07090E]/60 to-transparent py-4 md:py-6'
+            ? 'liquid-glass-light py-3 md:py-3.5'
+            : 'bg-gradient-to-b from-[#07090E]/95 via-[#07090E]/75 to-transparent py-4 md:py-6'
         }`}
       >
         <div className="w-full px-4 md:px-6 flex items-center justify-between gap-4 md:gap-8">
-          
           <Link
             href="/"
             className="flex items-center gap-3 flex-shrink-0 group cursor-pointer focus:outline-none"
           >
             <img
-              src={useLightHeader ? '/branding/logo-dark.png' : '/branding/logo-white.png'}
+              src={
+                useLightHeader
+                  ? branding.logoDark
+                  : branding.logoWhite
+              }
               alt={siteConfig.name}
-              className="h-18 w-auto object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg scale-[1.2] origin-left"
+              className="h-14 sm:h-16 md:h-18 w-auto object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg md:scale-[1.2] origin-left"
             />
           </Link>
 
-          {/* BUSCADOR SEPARADO Y CENTRADO */}
           <form
             onSubmit={handleSearchSubmit}
             className="hidden md:flex flex-1 max-w-3xl items-center gap-3 mx-2 lg:mx-6"
@@ -217,8 +257,8 @@ function HeaderContent() {
                 }`}
               />
               <SearchIcon
-                className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 ${
-                  useLightHeader ? 'text-slate-400' : 'text-blue-500'
+                className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 z-10 ${
+                  useLightHeader ? 'text-slate-400' : 'text-cyan-400'
                 }`}
               />
             </div>
@@ -226,7 +266,7 @@ function HeaderContent() {
               type="submit"
               className="h-11 lg:h-12 px-6 lg:px-8 rounded-full liquid-glass-active text-white text-[10px] lg:text-xs font-black uppercase tracking-wider cursor-pointer flex items-center justify-center flex-shrink-0"
             >
-              Buscar
+              <span>Buscar</span>
             </button>
           </form>
 
@@ -240,7 +280,7 @@ function HeaderContent() {
                   : 'liquid-glass-dark text-white font-bold'
               }`}
             >
-              <User className="w-4 h-4 text-blue-400" />
+              <User className="w-4 h-4 text-cyan-400" />
               <span className="text-xs lg:text-sm uppercase tracking-wider">Cuenta</span>
             </button>
 
@@ -271,7 +311,7 @@ function HeaderContent() {
               }`}
               aria-label="Abrir menú"
             >
-              <Menu className="w-5 h-5 lg:w-6 lg:h-6 text-blue-400" />
+              <Menu className="w-5 h-5 lg:w-6 lg:h-6 text-cyan-400" />
               <span className="hidden xl:inline text-[11px] lg:text-xs font-black uppercase tracking-wider pr-1">
                 Menú
               </span>
@@ -299,7 +339,7 @@ function HeaderContent() {
             className="flex items-center gap-2.5"
           >
             <img
-              src="/branding/logo-white.png"
+              src={branding.logoWhite}
               alt={siteConfig.name}
               className="h-10 w-auto object-contain scale-[1.1] origin-left"
             />
@@ -314,8 +354,10 @@ function HeaderContent() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-8 scrollbar-hide">
-          
-          <form onSubmit={handleSearchSubmit} className="relative flex items-center gap-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="relative flex items-center gap-2"
+          >
             <div className="relative flex-1 h-12">
               <input
                 type="search"
@@ -324,27 +366,27 @@ function HeaderContent() {
                 placeholder="Buscar equipo o potencia..."
                 className="w-full h-full pl-11 pr-4 rounded-full liquid-glass-input text-xs text-white placeholder-slate-400 focus:outline-none"
               />
-              <SearchIcon className="w-4 h-4 text-blue-500 absolute left-4 top-1/2 -translate-y-1/2" />
+              <SearchIcon className="w-4 h-4 text-cyan-400 absolute left-4 top-1/2 -translate-y-1/2 z-10" />
             </div>
             <button
               type="submit"
-              className="h-12 px-5 rounded-full liquid-glass-active text-white text-[10px] font-black uppercase tracking-wider flex items-center justify-center flex-shrink-0"
+              className="h-12 px-5 rounded-full liquid-glass-active text-white text-[10px] font-black uppercase tracking-wider flex items-center justify-center flex-shrink-0 cursor-pointer"
             >
-              Ir
+              <span>Ir</span>
             </button>
           </form>
 
           <div>
             <div className="flex items-center justify-between mb-4 px-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">
+              <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">
                 Departamentos Industriales
               </span>
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             </div>
 
             <div className="flex flex-col space-y-3">
-              {siteConfig.categories.map((cat) => {
-                const IconComponent = iconMap[cat.iconName] || Zap;
+              {categories.map((cat) => {
+                const IconComponent = iconMap[cat.iconName || 'Zap'] || Zap;
                 const href =
                   cat.id === 'Todos'
                     ? '/catalogo'
@@ -358,12 +400,12 @@ function HeaderContent() {
                     className="group flex items-center justify-between px-4 py-3.5 liquid-glass-dark text-slate-200 hover:text-white transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <IconComponent className="w-4 h-4 text-blue-500 group-hover:text-white transition-colors flex-shrink-0" />
+                      <IconComponent className="w-4 h-4 text-cyan-400 group-hover:text-white transition-colors flex-shrink-0" />
                       <span className="text-xs font-bold truncate">
                         {cat.name}
                       </span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-blue-500/50 group-hover:text-blue-400 transition-all flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-cyan-400/50 group-hover:text-cyan-300 transition-all flex-shrink-0" />
                   </Link>
                 );
               })}
@@ -383,7 +425,7 @@ function HeaderContent() {
                   className="flex items-center justify-between px-4 py-3.5 liquid-glass-dark text-xs font-bold text-slate-300 hover:text-white transition-all"
                 >
                   <span>{navItem.name}</span>
-                  <ChevronRight className="w-4 h-4 text-blue-500/50" />
+                  <ChevronRight className="w-4 h-4 text-cyan-400/50" />
                 </Link>
               ))}
 
@@ -396,9 +438,9 @@ function HeaderContent() {
                 className="flex items-center justify-between px-4 py-3.5 liquid-glass-dark text-xs font-bold text-slate-300 hover:text-white transition-all w-full text-left cursor-pointer"
               >
                 <span className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-blue-500" /> Mi Cuenta / Acceso
+                  <User className="w-4 h-4 text-cyan-400" /> Mi Cuenta / Acceso
                 </span>
-                <ChevronRight className="w-4 h-4 text-blue-500/50" />
+                <ChevronRight className="w-4 h-4 text-cyan-400/50" />
               </button>
             </div>
           </div>
@@ -406,7 +448,7 @@ function HeaderContent() {
 
         <div className="p-4 border-t border-white/10 bg-[#07090E] space-y-4">
           <div className="flex items-start gap-2.5 text-[11px] text-slate-400">
-            <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+            <MapPin className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
             <span>{siteConfig.location}</span>
           </div>
 

@@ -1,5 +1,6 @@
-# Reglas de Diseño BK Electronics
-- **Estética:** Espacial oscura de alto contraste (`bg-[#0B1120]` y tarjetas `bg-[#0F172A]`).
-- **Acentos:** Cian eléctrico (`cyan-400` / `cyan-500`) para llamados a la acción y amarillo (`yellow-400`) para precios.
-- **Distribución en Ordenador (PC):** Prohibido amontonar el contenido en el centro. Usar contenedores fluidos a ancho completo (`w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28`).
-- **Distribución en Móvil:** Aprovechamiento vertical completo sin espacios muertos, con controles táctiles accesibles y centro del Hero despejado para el globo 3D interactivo.
+# Reglas de Diseño ENERGY KVA
+
+- **Estética Principal:** Diseño *True Wet Liquid Glass*. Todos los botones primarios y contenedores flotantes deben verse como vidrio curvo grueso pulido y húmedo (núcleo profundo oscuro `#05070E` o azul eléctrico, con domo brillante blanco `::before` especular, refracción gruesa cian inferior y sombra proyectada azul).
+- **Textura Global:** *Piel de Robot Asimétrica*. Placas de armadura blancas (`#EEF2F7` a `#FFFFFF`), juntas geométricas curvas e irregulares (no patrones cuadrados repetitivos), con hendiduras grises sutiles, micro remaches técnicos y uniones de luz cian.
+- **Acentos y Neón:** Uso del color cian eléctrico (`#00E5FF`) y azul zafiro. Para la sección blanca superpuesta, implementar el bisel hendido perimetral con una luz neón puntual moviéndose fluidamente sin destellar agresivamente.
+- **Distribución en Móvil:** Altamente espaciado. Los componentes no deben encimarse. Se deben mantener márgenes holgados (`py-6`, `px-4`), y usar carruseles horizontales ocultando el scroll (`scrollbar-hide`) con sus flechas de control independientes para maximizar el área visible.

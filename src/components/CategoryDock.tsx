@@ -1,16 +1,8 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import {
-  Zap,
-  BatteryCharging,
-  Sun,
-  Cable,
-  Wrench,
-  Shield,
-  LayoutGrid,
-  ChevronLeft,
-  ChevronRight,
+  Zap, BatteryCharging, Sun, Cable, Wrench, Shield, LayoutGrid, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
@@ -19,14 +11,8 @@ interface CategoryDockProps {
   selectedCategory?: string;
 }
 
-const iconMap = {
-  LayoutGrid,
-  Zap,
-  BatteryCharging,
-  Sun,
-  Cable,
-  Wrench,
-  Shield,
+const iconMap: Record<string, any> = {
+  LayoutGrid, Zap, BatteryCharging, Sun, Cable, Wrench, Shield,
 };
 
 export function CategoryDock({
@@ -34,6 +20,28 @@ export function CategoryDock({
   selectedCategory = 'Todos',
 }: CategoryDockProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Sincronización en vivo con el Administrador
+  const [categories, setCategories] = useState<any[]>(siteConfig.categories);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const localCats = localStorage.getItem('kva_categories_db');
+      if (localCats) {
+        try {
+          const parsed = JSON.parse(localCats);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const hasTodos = parsed.some((c: any) => c.id === 'Todos');
+            if (!hasTodos) {
+              setCategories([{ id: 'Todos', name: 'Catálogo Completo', shortName: 'Todos', slug: 'todos', iconName: 'LayoutGrid', image: '' }, ...parsed]);
+            } else {
+              setCategories(parsed);
+            }
+          }
+        } catch (e) {}
+      }
+    }
+  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -47,7 +55,6 @@ export function CategoryDock({
 
   return (
     <div className="relative w-full flex items-center">
-      {/* Flecha Izquierda Fija al Extremo Izquierdo */}
       <button
         type="button"
         onClick={() => scroll('left')}
@@ -57,16 +64,14 @@ export function CategoryDock({
         <ChevronLeft className="w-5 h-5" />
       </button>
 
-      {/* Carrilera con padding vertical py-6 para que las sombras inferiores nunca se corten */}
       <div
         ref={scrollRef}
         className="w-full overflow-x-auto scrollbar-hide py-6 px-12 sm:px-14 scroll-smooth"
       >
         <div className="flex items-center justify-start lg:justify-between gap-3 sm:gap-4 min-w-max">
-          {siteConfig.categories.map((item) => {
-            const Icon = iconMap[item.iconName] || Zap;
-            const isSelected =
-              selectedCategory.toUpperCase() === item.id.toUpperCase();
+          {categories.map((item) => {
+            const Icon = iconMap[item.iconName || 'Zap'] || Zap;
+            const isSelected = selectedCategory.toUpperCase() === item.id.toUpperCase();
 
             return (
               <button
@@ -84,14 +89,13 @@ export function CategoryDock({
                     isSelected ? 'text-white' : 'text-cyan-400'
                   }`}
                 />
-                <span className="whitespace-nowrap">{item.shortName}</span>
+                <span className="whitespace-nowrap">{item.shortName || item.name}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Flecha Derecha Fija al Extremo Derecho */}
       <button
         type="button"
         onClick={() => scroll('right')}

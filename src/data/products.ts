@@ -6,7 +6,6 @@ export interface Product {
   images: string[];
   description: string;
   features: string[];
-  paymentMethods: string[];
   category: string;
   stock?: number;
 }
@@ -18,7 +17,7 @@ export const products: Product[] = [
     price: 1450.00,
     badge: 'Industrial',
     category: 'TRANSFORMADORES',
-    images: ['/products/transformador-25kva.jpg'],
+    images: [],
     description: 'Transformador en baño de aceite diseñado para tendidos eléctricos, fincas y zonas agroindustriales en Portuguesa con garantía certificada.',
     features: [
       'Capacidad nominal: 25 KVA',
@@ -26,7 +25,6 @@ export const products: Product[] = [
       'Voltaje Secundario: 120/240V',
       'Normativa: Estándares Corpoelec / CADAFE'
     ],
-    paymentMethods: ['Zelle', 'Binance Pay', 'Pago Móvil'],
     stock: 4
   },
   {
@@ -35,7 +33,7 @@ export const products: Product[] = [
     price: 2350.00,
     badge: 'Alta Tensión',
     category: 'TRANSFORMADORES',
-    images: ['/products/transformador-50kva.jpg'],
+    images: [],
     description: 'Transformador convencional de alta eficiencia para proyectos agroindustriales, urbanismos y plantas procesadoras.',
     features: [
       'Potencia continua: 50 KVA',
@@ -43,7 +41,6 @@ export const products: Product[] = [
       'Tanque sellado con pintura electrostática anticorrosiva',
       'Pruebas de protocolo incluidas'
     ],
-    paymentMethods: ['Zelle', 'Binance Pay', 'Transferencia Bancaria'],
     stock: 3
   },
   {
@@ -52,7 +49,7 @@ export const products: Product[] = [
     price: 145.00,
     badge: 'Stock Limitado',
     category: 'RESPALDO',
-    images: ['/products/estacion-portatil-300w.jpg'],
+    images: [],
     description: 'Batería LiFePO4 de alta duración con salidas AC 110V onda pura, USB-C PD y panel LED. Ideal para mantener operativos routers, laptops, puntos de venta y ventiladores.',
     features: [
       'Potencia continua: 300W (Picos de 600W)',
@@ -60,7 +57,6 @@ export const products: Product[] = [
       'Carga rápida por red 110V o panel solar',
       'Pantalla digital inteligente de autonomía'
     ],
-    paymentMethods: ['Pago Móvil', 'Zelle', 'Efectivo', 'Binance Pay'],
     stock: 12
   },
   {
@@ -69,7 +65,7 @@ export const products: Product[] = [
     price: 3490.00,
     badge: 'Envío Gratis',
     category: 'RESPALDO',
-    images: ['/products/planta-diesel-15kva.jpg'],
+    images: [],
     description: 'Generador industrial diésel con cabina ultra silenciosa y tablero de transferencia automática (ATS) incluido para respaldo continuo.',
     features: [
       'Potencia Standby: 15 KVA (120V/240V)',
@@ -77,7 +73,6 @@ export const products: Product[] = [
       'Cabina insonorizada intemperie',
       'Autonomía continua de hasta 14 horas'
     ],
-    paymentMethods: ['Zelle', 'Binance Pay', 'Efectivo'],
     stock: 2
   },
   {
@@ -86,7 +81,7 @@ export const products: Product[] = [
     price: 38.00,
     badge: 'Oferta',
     category: 'ILUMINACION',
-    images: ['/products/luminaria-solar-150w.jpg'],
+    images: [],
     description: 'Alumbrado público e industrial autónomo de alto flujo luminoso con panel solar monocristalino integrado y sensor radar.',
     features: [
       'Potencia lumínica: 150W LED SMD de alto brillo',
@@ -94,7 +89,6 @@ export const products: Product[] = [
       'Control remoto incluido y sensor crepuscular',
       'Grado de protección IP65 contra tormentas'
     ],
-    paymentMethods: ['Pago Móvil', 'Zelle', 'Efectivo', 'Binance Pay'],
     stock: 35
   },
   {
@@ -103,7 +97,7 @@ export const products: Product[] = [
     price: 19.00,
     badge: 'Certificado',
     category: 'CONDUCTORES',
-    images: ['/products/barra-copperweld.jpg'],
+    images: [],
     description: 'Electrodo de acero con recubrimiento electrolítico de cobre puro para sistemas de aterramiento de transformadores, pararrayos y tableros.',
     features: [
       'Longitud reglamentaria: 2.40 metros',
@@ -111,7 +105,6 @@ export const products: Product[] = [
       'Alta disipación de descargas atmosféricas',
       'Resistencia superior a la corrosión del suelo'
     ],
-    paymentMethods: ['Pago Móvil', 'Zelle', 'Efectivo', 'Binance Pay'],
     stock: 60
   },
   {
@@ -120,7 +113,7 @@ export const products: Product[] = [
     price: 68.00,
     badge: 'Oferta',
     category: 'HERRAMIENTAS',
-    images: ['/products/crimpeadora-hidraulica.jpg'],
+    images: [],
     description: 'Prensa terminales hidráulica de alto tonelaje con juego completo de dados hexagonales para cables de cobre y aluminio de alta y baja tensión.',
     features: [
       'Fuerza de compresión: 16 Toneladas',
@@ -128,7 +121,6 @@ export const products: Product[] = [
       'Cabezal rotativo de 180° en acero forjado',
       'Maletín rígido de transporte incluido'
     ],
-    paymentMethods: ['Pago Móvil', 'Zelle', 'Efectivo', 'Binance Pay'],
     stock: 15
   },
   {
@@ -137,7 +129,7 @@ export const products: Product[] = [
     price: 115.00,
     badge: 'Envío Gratis',
     category: 'PROTECCION',
-    images: ['/products/supresor-picos.jpg'],
+    images: [],
     description: 'Dispositivo de protección contra sobretensiones transitorias (DPS) y descargas atmosféricas para tableros principales y maquinaria.',
     features: [
       'Capacidad de descarga máxima: 100 kA',
@@ -145,7 +137,6 @@ export const products: Product[] = [
       'Tiempo de respuesta térmico < 25 nanosegundos',
       'Indicadores LED de estado por cada fase'
     ],
-    paymentMethods: ['Pago Móvil', 'Zelle', 'Efectivo', 'Binance Pay'],
     stock: 10
   }
 ];

@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import AffiliateTracker from "@/components/AffiliateTracker";
+import { KvaAdvisorModal } from "@/components/KvaAdvisorModal";
 
 export const metadata: Metadata = {
   title: `${siteConfig.storeName} | ${siteConfig.tagline}`,
@@ -23,6 +24,7 @@ export default function RootLayout({
         <AffiliateTracker />
         <Header />
         <CartDrawer />
+        <KvaAdvisorModal />
         {children}
         <Footer />
         <BottomNav />

@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F6F8FB;
+  --background: #EEF2F7;
   --foreground: #0A0E17;
 }
 
 @theme {
-  --color-pearl: #F6F8FB;
+  --color-pearl: #EEF2F7;
   --color-glass-dark: #05070E;
   --color-electric-blue: #0044FF;
   --color-cyan-glow: #00E5FF;
 }
 
-/* Animación estándar de corriente eléctrica neón (100% compatible con Turbopack y PostCSS) */
+/* Pulso eléctrico lento y concentrado viajando por el bisel perimetral */
 @keyframes neon-circuit-flow {
   0% {
     background-position: 200% 0%;
@@ -23,239 +23,247 @@
 }
 
 @layer utilities {
-  /* 💎 TEXTURA PIEL DE ROBOT CON PANELES BISELADOS DEFINIDOS */
+  /* 💎 TEXTURA PIEL DE ROBOT: PLACAS DE ARMADURA CIBERNÉTICA ASIMÉTRICAS Y CURVAS (Lienzo 1440x960 sin cuadrícula) */
   .bg-robot-skin {
-    background-color: #F3F6FA;
+    background-color: #EEF2F7;
     background-image:
-      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 75%),
-      url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 178h180v1.5H0zM178 0v180h1.5V0z' fill='rgba(15,23,42,0.09)'/%3E%3Cpath d='M0 179.5h180V180H0zM179.5 0v180H180V0z' fill='rgba(255,255,255,0.95)'/%3E%3Cpath d='M0 89h180v1H0zM89 0v180h1V0z' fill='rgba(15,23,42,0.04)'/%3E%3Cpath d='M0 90h180v1H0zM90 0v180h1V0z' fill='rgba(255,255,255,0.85)'/%3E%3Ccircle cx='178' cy='178' r='2.5' fill='rgba(15,23,42,0.12)'/%3E%3Ccircle cx='177' cy='177' r='1.5' fill='rgba(255,255,255,0.9)'/%3E%3Ccircle cx='89' cy='89' r='2' fill='rgba(15,23,42,0.08)'/%3E%3C/g%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
-    background-size: 100% 100%, 180px 180px, 200px 200px;
-    background-attachment: scroll, fixed, fixed;
+      radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, 0.92) 0%, rgba(238, 242, 247, 0.4) 65%, rgba(220, 228, 238, 0.5) 100%),
+      url("data:image/svg+xml,%3Csvg width='1440' height='960' viewBox='0 0 1440 960' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3C!-- Placas de armadura con ligero contraste tonal --%3E%3Cpath d='M0 0h420l65 65v110c0 45-25 80-65 105L290 360H0V0z' fill='rgba(255,255,255,0.55)'/%3E%3Cpath d='M485 65h495l55 55v140l-45 45H560l-75-75V65z' fill='rgba(226,232,240,0.28)'/%3E%3Cpath d='M1035 120h405v290h-260l-90-90-55-55V120z' fill='rgba(255,255,255,0.5)'/%3E%3Cpath d='M0 360h290l130-80 65 25h505l95 95v220l-70 70H510l-90-90H180L0 480V360z' fill='rgba(241,245,249,0.45)'/%3E%3Cpath d='M1085 400l95 10h260v370h-390l-35-35V470l70-70z' fill='rgba(226,232,240,0.32)'/%3E%3Cpath d='M0 480l180 120h240l90 90v270H0V480z' fill='rgba(255,255,255,0.6)'/%3E%3Cpath d='M510 690h505l35 55v215H510V690z' fill='rgba(226,232,240,0.25)'/%3E%3C!-- Biseles de luz blanca (Relieve 3D de las placas) --%3E%3Cg stroke='rgba(255,255,255,0.98)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 362h290l130-80c40-25 65-60 65-105V67L420 2'/%3E%3Cpath d='M487 177l75 75h428l45-45V122l-55-55H487'/%3E%3Cpath d='M1037 265l55 55 90 90h258'/%3E%3Cpath d='M422 282l65 25h503l95 95v220l-70 70H512l-90-90H180L0 482'/%3E%3Cpath d='M1017 692h33l35 35h355'/%3E%3Cpath d='M512 692v268'/%3E%3Cpath d='M290 362l60 95v143'/%3E%3Cpath d='M760 307v185c0 40 30 70 70 70h255'/%3E%3Cpath d='M180 602v160l-70 70H0'/%3E%3Cpath d='M1180 412v190c0 35 25 60 60 60h200'/%3E%3C/g%3E%3C!-- Hendiduras oscuras de ensamblaje (Costuras de armadura robot) --%3E%3Cg stroke='rgba(15,23,42,0.13)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 360h290l130-80c40-25 65-60 65-105V65L420 0'/%3E%3Cpath d='M485 175l75 75h430l45-45V120l-55-55H485'/%3E%3Cpath d='M1035 265l55 55 90 90h260'/%3E%3Cpath d='M420 280l65 25h505l95 95v220l-70 70H510l-90-90H180L0 480'/%3E%3Cpath d='M1015 690h35l35 35h355'/%3E%3Cpath d='M510 690v270'/%3E%3Cpath d='M290 360l60 95v145'/%3E%3Cpath d='M760 305v185c0 40 30 70 70 70h255'/%3E%3Cpath d='M180 600v160l-70 70H0'/%3E%3Cpath d='M1180 410v190c0 35 25 60 60 60h200'/%3E%3C!-- Curvas biomecánicas secundarias tipo chasis --%3E%3Cpath d='M120 0c0 110 75 195 185 215l115 20' stroke-dasharray='180 12'/%3E%3Cpath d='M980 0c0 95-65 165-160 180l-140 20'/%3E%3Cpath d='M510 820c95 0 175-55 215-130'/%3E%3Cpath d='M1340 0c-45 140-45 280 0 410'/%3E%3C/g%3E%3C!-- Puertos mecánicos, remaches y respiraderos cian --%3E%3Cg fill='rgba(15,23,42,0.16)'%3E%3Ccircle cx='485' cy='65' r='4.5'/%3E%3Ccircle cx='485' cy='175' r='4'/%3E%3Ccircle cx='560' cy='250' r='3.5'/%3E%3Ccircle cx='990' cy='250' r='4'/%3E%3Ccircle cx='1035' cy='205' r='4'/%3E%3Ccircle cx='290' cy='360' r='5'/%3E%3Ccircle cx='420' cy='280' r='4.5'/%3E%3Ccircle cx='760' cy='305' r='4'/%3E%3Ccircle cx='1085' cy='400' r='5'/%3E%3Ccircle cx='1085' cy='560' r='4'/%3E%3Ccircle cx='1015' cy='690' r='5'/%3E%3Ccircle cx='510' cy='690' r='5'/%3E%3Ccircle cx='350' cy='455' r='4'/%3E%3Ccircle cx='180' cy='600' r='4.5'/%3E%3Ccircle cx='1180' cy='410' r='4.5'/%3E%3Crect x='610' y='236' width='28' height='4' rx='2'/%3E%3Crect x='644' y='236' width='14' height='4' rx='2'/%3E%3Crect x='310' y='338' width='24' height='4' rx='2' transform='rotate(-31 310 338)'/%3E%3Crect x='1100' y='430' width='4' height='26' rx='2'/%3E%3Crect x='1100' y='462' width='4' height='14' rx='2'/%3E%3C/g%3E%3C!-- Micro-circuitos de energía cian en las uniones de las placas --%3E%3Cg stroke='rgba(0,195,255,0.42)' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M325 338l72-44'/%3E%3Cpath d='M585 250h120'/%3E%3Cpath d='M1085 435v95'/%3E%3Cpath d='M215 600h110'/%3E%3Cpath d='M545 690h130'/%3E%3Ccircle cx='485' cy='65' r='2' fill='%2300E5FF'/%3E%3Ccircle cx='290' cy='360' r='2' fill='%2300E5FF'/%3E%3Ccircle cx='1085' cy='400' r='2' fill='%2300E5FF'/%3E%3Ccircle cx='510' cy='690' r='2' fill='%2300E5FF'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-size: 100% 100%, 1440px 960px;
+    background-repeat: no-repeat, repeat;
+    background-position: center top, center top;
   }
 
   /* 💎 LÁMINA PRINCIPAL SUPERPUESTA AL HERO */
   .lamina-blanca {
     position: relative;
     z-index: 30;
-    border-top-left-radius: 2.5rem;
-    border-top-right-radius: 2.5rem;
-    border-bottom-left-radius: 2rem;
-    border-bottom-right-radius: 2rem;
-    box-shadow:
-      0 -20px 50px -10px rgba(5, 10, 24, 0.7),
-      0 -4px 25px 0 rgba(0, 229, 255, 0.22);
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    border-bottom-left-radius: 1.5rem;
+    border-bottom-right-radius: 1.5rem;
+    box-shadow: 0 -18px 45px -10px rgba(5, 10, 24, 0.78);
   }
 
-  /* 💎 BISEL HENDIDO (HUECO SOMBREADO) CON LUZ NEÓN CIAN ALREDEDOR DE LA PÁGINA */
+  /* 💎 BISEL HENDIDO CON PULSO DE LUZ NEÓN PEQUEÑO Y LENTO (14s) */
   .chasis-bisel {
     position: relative;
-    /* Canal físico tallado hacia adentro en todo el perímetro (arriba, lados y abajo) */
     box-shadow:
-      0 -20px 50px -10px rgba(5, 10, 24, 0.65),
-      inset 0 0 0 7px #E2E8F0,
-      inset 0 6px 14px rgba(5, 10, 24, 0.35),
-      inset 0 -6px 14px rgba(5, 10, 24, 0.25),
-      inset 6px 0 14px rgba(5, 10, 24, 0.25),
-      inset -6px 0 14px rgba(5, 10, 24, 0.25),
-      inset 0 0 0 1.5px rgba(255, 255, 255, 0.95);
+      0 -18px 45px -10px rgba(5, 10, 24, 0.7),
+      inset 0 0 0 4px #CBD5E1,
+      inset 0 4px 9px rgba(5, 10, 24, 0.28),
+      inset 0 -4px 9px rgba(5, 10, 24, 0.22),
+      inset 4px 0 9px rgba(5, 10, 24, 0.22),
+      inset -4px 0 9px rgba(5, 10, 24, 0.22),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.95);
   }
 
-  /* Corriente eléctrica azul/cian viajando dentro del bisel hueco perimetral */
   .chasis-bisel::after {
     content: "";
     position: absolute;
-    inset: 2px;
+    inset: 1px;
     border-radius: inherit;
-    padding: 3.5px;
+    padding: 2.5px;
+    /* Destello pequeño y concentrado (solo entre 48% y 52%) para que se vea viajar sin encender todo el bisel */
     background: linear-gradient(
       115deg,
-      rgba(0, 68, 255, 0.18) 0%,
-      rgba(0, 68, 255, 0.18) 32%,
-      rgba(0, 140, 255, 0.85) 44%,
-      #00E5FF 50%,
-      #FFFFFF 52%,
-      #00E5FF 54%,
-      rgba(0, 140, 255, 0.85) 60%,
-      rgba(0, 68, 255, 0.18) 72%,
-      rgba(0, 68, 255, 0.18) 100%
+      rgba(15, 23, 42, 0.08) 0%,
+      rgba(15, 23, 42, 0.08) 46.5%,
+      rgba(0, 110, 255, 0.65) 48.5%,
+      #00E5FF 49.6%,
+      #FFFFFF 50%,
+      #00E5FF 50.4%,
+      rgba(0, 110, 255, 0.65) 51.5%,
+      rgba(15, 23, 42, 0.08) 53.5%,
+      rgba(15, 23, 42, 0.08) 100%
     );
-    background-size: 300% 300%;
+    background-size: 350% 350%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.9)) drop-shadow(0 0 12px rgba(0, 68, 255, 0.7));
     pointer-events: none;
-    animation: neon-circuit-flow 4.5s linear infinite;
+    animation: neon-circuit-flow 14s linear infinite;
     z-index: 45;
   }
 
-  /* 💎 1. NÚCLEO OSCURO (TRUE LIQUID GLASS) */
-  /* IMPORTANTE: :where(:not(.absolute)...) evita pisar position:absolute en las flechas de los carruseles */
+  /* 💎 1. TRUE WET LIQUID GLASS DARK (VIDRIO LÍQUIDO PULIDO Y BRILLANTE) */
   .liquid-glass-dark:where(:not(.absolute):not(.fixed):not(.sticky)) {
     position: relative;
   }
 
   .liquid-glass-dark {
-    background: rgba(5, 7, 14, 0.88);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 9999px;
+    background:
+      radial-gradient(120% 100% at 50% 100%, rgba(0, 195, 255, 0.28) 0%, rgba(0, 68, 255, 0.14) 42%, rgba(4, 7, 15, 0.94) 85%),
+      linear-gradient(180deg, #0B1222 0%, #04070F 65%, #07142B 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.26);
     box-shadow:
-      inset 0 -3px 8px rgba(0, 229, 255, 0.45),
-      inset 0 -8px 24px rgba(0, 68, 255, 0.35),
-      0 8px 16px -4px rgba(0, 0, 0, 0.45),
-      0 12px 24px -6px rgba(0, 229, 255, 0.25);
+      /* Borde superior de vidrio brillante */
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.85),
+      /* Grosor lateral de cristal */
+      inset 2px 0 5px rgba(0, 229, 255, 0.28),
+      inset -2px 0 5px rgba(59, 130, 246, 0.28),
+      /* Refracción gruesa inferior cian/azul dentro del vidrio */
+      inset 0 -3px 5px rgba(0, 229, 255, 0.85),
+      inset 0 -10px 20px rgba(0, 102, 255, 0.55),
+      /* Sombra cáustica proyectada en la superficie inferior */
+      0 12px 22px -6px rgba(2, 6, 23, 0.72),
+      0 8px 18px -4px rgba(0, 180, 255, 0.35);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* 💎 2. DOMO ESPECULAR SUPERIOR 3D */
+  /* 💎 2. DOMO ESPECULAR HÚMEDO (EL REFLEJO BLANCO LISO DE VIDRIO) */
   .liquid-glass-dark::before,
-  .liquid-glass-active::before {
+  .liquid-glass-active::before,
+  .liquid-glass-input::before {
     content: "";
     position: absolute;
     top: 2px;
-    left: 4px;
-    right: 4px;
-    height: 44%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-    border-radius: 9999px 9999px 0 0;
+    left: 5px;
+    right: 5px;
+    height: 45%;
+    border-radius: inherit;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.76) 0%,
+      rgba(255, 255, 255, 0.24) 48%,
+      rgba(255, 255, 255, 0) 100%
+    );
     pointer-events: none;
     z-index: 1;
   }
 
   .liquid-glass-dark:hover {
-    background: rgba(10, 14, 25, 0.94);
-    border-color: rgba(0, 229, 255, 0.45);
+    border-color: rgba(125, 249, 255, 0.65);
     box-shadow:
-      inset 0 -3px 10px rgba(0, 229, 255, 0.65),
-      inset 0 -8px 24px rgba(0, 68, 255, 0.45),
-      0 10px 20px -4px rgba(0, 0, 0, 0.55),
-      0 16px 32px -6px rgba(0, 229, 255, 0.35);
+      inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95),
+      inset 2px 0 6px rgba(0, 229, 255, 0.45),
+      inset -2px 0 6px rgba(59, 130, 246, 0.45),
+      inset 0 -3.5px 7px rgba(0, 229, 255, 1),
+      inset 0 -12px 24px rgba(0, 110, 255, 0.72),
+      0 14px 26px -5px rgba(2, 6, 23, 0.8),
+      0 10px 24px -3px rgba(0, 210, 255, 0.52);
   }
 
-  /* 💎 3. BOTÓN ACTIVO (AZUL ELÉCTRICO PURO) */
+  /* 💎 3. BOTÓN ACTIVO (TRUE WET LIQUID GLASS AZUL/CIAN) */
   .liquid-glass-active:where(:not(.absolute):not(.fixed):not(.sticky)) {
     position: relative;
   }
 
   .liquid-glass-active {
-    background: linear-gradient(180deg, rgba(0, 140, 255, 0.88) 0%, rgba(0, 68, 255, 0.96) 100%);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.45);
-    border-radius: 9999px;
+    background:
+      radial-gradient(110% 100% at 50% 100%, rgba(0, 240, 255, 0.75) 0%, rgba(0, 102, 255, 0.92) 52%, rgba(0, 42, 165, 0.98) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
     box-shadow:
-      inset 0 -3px 8px rgba(0, 229, 255, 0.85),
-      0 8px 16px -4px rgba(0, 0, 0, 0.35),
-      0 14px 28px -4px rgba(0, 68, 255, 0.55);
+      inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95),
+      inset 2px 0 6px rgba(165, 243, 252, 0.5),
+      inset -2px 0 6px rgba(165, 243, 252, 0.5),
+      inset 0 -3.5px 6px rgba(255, 255, 255, 0.75),
+      inset 0 -9px 18px rgba(0, 229, 255, 0.9),
+      0 12px 22px -5px rgba(0, 35, 120, 0.65),
+      0 10px 24px -3px rgba(0, 195, 255, 0.58);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .liquid-glass-active:hover {
-    background: linear-gradient(180deg, rgba(30, 160, 255, 0.95) 0%, rgba(0, 80, 255, 1) 100%);
+    border-color: rgba(255, 255, 255, 0.85);
     box-shadow:
-      inset 0 -3px 10px rgba(0, 229, 255, 0.95),
-      0 10px 20px -4px rgba(0, 0, 0, 0.45),
-      0 18px 36px -4px rgba(0, 68, 255, 0.7);
+      inset 0 2px 2px rgba(255, 255, 255, 1),
+      inset 0 -4px 8px rgba(255, 255, 255, 0.9),
+      inset 0 -12px 22px rgba(0, 240, 255, 1),
+      0 15px 28px -5px rgba(0, 45, 150, 0.75),
+      0 12px 28px -2px rgba(0, 229, 255, 0.72);
   }
 
-  /* 💎 4. INPUTS Y BUSCADORES */
+  /* Asegura que el texto e íconos dentro de los botones de cristal queden por encima del reflejo ::before */
+  .liquid-glass-dark > *,
+  .liquid-glass-active > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* 💎 4. INPUTS Y BUSCADORES DE CRISTAL PULIDO */
   .liquid-glass-input:where(:not(.absolute):not(.fixed):not(.sticky)) {
     position: relative;
   }
 
   .liquid-glass-input {
-    background: rgba(5, 7, 14, 0.55);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: linear-gradient(180deg, rgba(10, 16, 30, 0.92) 0%, rgba(5, 9, 18, 0.96) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
     box-shadow:
-      inset 0 3px 6px rgba(0, 0, 0, 0.8),
-      inset 0 -1px 2px rgba(255, 255, 255, 0.12),
-      0 4px 12px -2px rgba(0, 68, 255, 0.12);
-    transition: all 0.3s ease;
+      inset 0 2px 5px rgba(0, 0, 0, 0.75),
+      inset 0 -2px 5px rgba(0, 229, 255, 0.35),
+      0 6px 16px -4px rgba(0, 0, 0, 0.45);
+    transition: all 0.25s ease;
   }
 
   .liquid-glass-input:focus {
-    border-color: rgba(0, 229, 255, 0.65);
+    border-color: rgba(0, 229, 255, 0.75);
     box-shadow:
-      inset 0 3px 6px rgba(0, 0, 0, 0.8),
-      0 0 16px rgba(0, 229, 255, 0.35);
+      inset 0 2px 5px rgba(0, 0, 0, 0.8),
+      inset 0 -2px 8px rgba(0, 229, 255, 0.65),
+      0 0 18px rgba(0, 229, 255, 0.35);
   }
 
   .liquid-glass-input-light {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(10, 14, 23, 0.12);
-    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.06);
+    background: linear-gradient(180deg, #E8EEF5 0%, #FFFFFF 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    box-shadow:
+      inset 0 2px 5px rgba(15, 23, 42, 0.1),
+      inset 0 -2px 4px rgba(255, 255, 255, 0.9),
+      0 6px 14px -4px rgba(15, 23, 42, 0.08);
+    transition: all 0.25s ease;
   }
 
   .liquid-glass-input-light:focus {
-    border-color: rgba(0, 68, 255, 0.55);
-    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(0, 102, 255, 0.6);
+    background: #FFFFFF;
     box-shadow:
-      inset 0 3px 6px rgba(0, 0, 0, 0.06),
-      0 0 0 3px rgba(0, 68, 255, 0.15);
+      inset 0 2px 4px rgba(15, 23, 42, 0.06),
+      0 0 0 3px rgba(0, 102, 255, 0.18);
   }
 
-  /* 💎 5. TARJETAS PERLADAS (CRISTAL ESMERILADO SOBRE PIEL DE ROBOT) */
+  /* 💎 5. TARJETAS PERLADAS (CRISTAL BLANCO PULIDO CON BISEL LISO) */
   .liquid-glass-pearl:where(:not(.absolute):not(.fixed):not(.sticky)) {
     position: relative;
   }
 
   .liquid-glass-pearl {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 248, 251, 0.84) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 1);
-    border-radius: 1.5rem;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.94) 100%);
+    border: 1.5px solid #FFFFFF;
+    border-radius: 1rem;
     box-shadow:
-      inset 0 2px 4px rgba(255, 255, 255, 1),
-      inset 0 -3px 8px rgba(0, 68, 255, 0.08),
-      0 14px 28px -6px rgba(10, 20, 40, 0.12),
-      0 6px 14px -2px rgba(0, 68, 255, 0.08);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      inset 0 2px 3px rgba(255, 255, 255, 1),
+      inset 0 -3px 6px rgba(0, 102, 255, 0.08),
+      0 12px 24px -6px rgba(15, 23, 42, 0.1),
+      0 4px 10px -2px rgba(0, 68, 255, 0.06);
+    transition: all 0.28s ease;
   }
 
   .liquid-glass-pearl:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: rgba(0, 229, 255, 0.55);
     box-shadow:
       inset 0 2px 4px rgba(255, 255, 255, 1),
-      inset 0 -4px 12px rgba(0, 229, 255, 0.2),
-      0 20px 34px -8px rgba(10, 20, 40, 0.16),
-      0 10px 22px -2px rgba(0, 68, 255, 0.2);
+      inset 0 -3px 8px rgba(0, 229, 255, 0.22),
+      0 18px 30px -8px rgba(15, 23, 42, 0.15),
+      0 8px 18px -4px rgba(0, 102, 255, 0.18);
   }
 
-  /* 💎 6. HEADER CLARO EN SCROLL (SIN LÍNEA BLANCA INFERIOR) */
+  /* 💎 6. HEADER CLARO EN SCROLL */
   .liquid-glass-light {
-    background: rgba(246, 248, 251, 0.88);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.12);
-  }
-
-  .liquid-glass-header-pearl {
-    background: rgba(246, 248, 251, 0.86);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 8px 24px -8px rgba(10, 20, 40, 0.12);
+    background: rgba(244, 247, 251, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow:
+      inset 0 -1px 0 rgba(255, 255, 255, 0.9),
+      0 8px 25px -8px rgba(15, 23, 42, 0.14);
   }
 }
 
-/* Textura Piel de Robot aplicada directamente al body sin usar @apply */
 body {
-  background-color: #F3F6FA;
-  background-image:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 75%),
-    url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 178h180v1.5H0zM178 0v180h1.5V0z' fill='rgba(15,23,42,0.09)'/%3E%3Cpath d='M0 179.5h180V180H0zM179.5 0v180H180V0z' fill='rgba(255,255,255,0.95)'/%3E%3Cpath d='M0 89h180v1H0zM89 0v180h1V0z' fill='rgba(15,23,42,0.04)'/%3E%3Cpath d='M0 90h180v1H0zM90 0v180h1V0z' fill='rgba(255,255,255,0.85)'/%3E%3Ccircle cx='178' cy='178' r='2.5' fill='rgba(15,23,42,0.12)'/%3E%3Ccircle cx='177' cy='177' r='1.5' fill='rgba(255,255,255,0.9)'/%3E%3Ccircle cx='89' cy='89' r='2' fill='rgba(15,23,42,0.08)'/%3E%3C/g%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
-  background-size: 100% 100%, 180px 180px, 200px 200px;
-  background-attachment: scroll, fixed, fixed;
+  background-color: #EEF2F7;
   color: #0F172A;
   overflow-x: hidden;
 }

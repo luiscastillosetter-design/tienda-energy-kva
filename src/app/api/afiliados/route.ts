@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { siteConfig } from '@/config/site';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Configuración incompleta' }, { status: 500 });
     }
 
-    // Validar código en la API de Ubuntu - REQUIRED
     if (!apiUbuntu) {
       return NextResponse.json({ error: 'API no configurada' }, { status: 500 });
     }
@@ -28,15 +28,13 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({ codigo }),
       });
 
-      // Validación estricta: debe ser exitosa
       if (!validationResponse.ok) {
         console.error('Código rechazado por API:', validationResponse.status);
-        return NextResponse.json({ error: 'Código de afiliado no disponible' }, { status: 400 });
+        return NextResponse.json({ error: 'Código de aliado no disponible' }, { status: 400 });
       }
 
       const validationData = await validationResponse.json();
 
-      // Verificar que el código esté disponible en la respuesta
       if (!validationData.disponible) {
         return NextResponse.json({ error: 'Código no está disponible' }, { status: 400 });
       }
@@ -45,14 +43,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No se pudo validar el código' }, { status: 400 });
     }
 
-    // Mensaje de bienvenida - solo llega aquí si validación fue exitosa
-    const mensajeBienvenida = `¡Hola ${nombre}! 🚀 Soy Sofía, asistente de BK Electronics. Tu solicitud de embajador fue recibida. Tu código oficial es: ${codigo}. Aquí tienes tu acceso al material: ${googleDriveUrl} ¡Cualquier duda, escríbeme!`;
+    // Mensaje de bienvenida corporativo B2B
+    const mensajeBienvenida = `¡Hola ${nombre}! ⚡ Bienvenido a la red de Aliados Comerciales de ${siteConfig.storeName}. Tu solicitud B2B ha sido procesada con éxito y tu código corporativo oficial es: ${codigo}. Aquí tienes tu acceso directo al material técnico y catálogo: ${googleDriveUrl} ¡Quedamos a tu entera disposición para cualquier proyecto!`;
 
     const metaPhoneId = process.env.META_PHONE_ID;
     const metaAccessToken = process.env.META_ACCESS_TOKEN;
 
     if (!metaPhoneId || !metaAccessToken) {
-      return NextResponse.json({ error: 'Config incompleta' }, { status: 500 });
+      return NextResponse.json({ error: 'Configuración Meta incompleta' }, { status: 500 });
     }
 
     const metaResponse = await fetch(
@@ -91,7 +89,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+    console.error('Error interno Aliados:', error);
+    return NextResponse.json({ error: 'Error interno en el servidor' }, { status: 500 });
   }
 }

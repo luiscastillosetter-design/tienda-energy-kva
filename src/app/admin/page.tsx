@@ -11,6 +11,9 @@ import { supabase } from '@/lib/supabase';
 import { siteConfig } from '@/config/site';
 import { products as sampleIndustrialProducts } from '@/data/products';
 
+const FALLBACK_INDUSTRIAL_SVG =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none"><rect width="400" height="400" rx="32" fill="%230A0E17"/><circle cx="200" cy="200" r="120" stroke="%230044FF" stroke-width="4" stroke-dasharray="12 12" opacity="0.5"/><circle cx="200" cy="200" r="85" fill="%230044FF" fill-opacity="0.15" stroke="%2300E5FF" stroke-width="3"/><path d="M215 115L145 215H200L185 285L255 185H200L215 115Z" fill="%2300E5FF" stroke="%23FFFFFF" stroke-width="4" stroke-linejoin="round"/><text x="200" y="355" text-anchor="middle" fill="%2300E5FF" font-family="sans-serif" font-weight="900" font-size="18" letter-spacing="4">ENERGY KVA</text></svg>';
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
@@ -116,14 +119,16 @@ export default function AdminPage() {
 
   const isVideoSource = (url: string) => url?.endsWith('.mp4') || url?.includes('.mp4?') || url?.startsWith('data:video');
 
-  const handleRestoreSampleData = () => {
-    if (confirm("¿Estás seguro de restaurar los 8 productos industriales base? Esto borrará el inventario actual.")) {
+  const handleRestoreSampleData = async () => {
+    if (confirm("¿Estás seguro de restaurar los 8 productos industriales base? Esto borrará el inventario actual de Supabase y de tu navegador.")) {
       setProducts(sampleIndustrialProducts);
       localStorage.setItem('kva_products_db', JSON.stringify(sampleIndustrialProducts));
       showNotification('✅ Datos de muestra industriales restaurados con éxito.');
-      supabase.from('products').delete().neq('id', '0').then(() => {
-        supabase.from('products').insert(sampleIndustrialProducts);
-      });
+      
+      // Borrar registros antiguos y guardar limpios sin paymentMethods
+      await supabase.from('products').delete().neq('id', '0');
+      const { error } = await supabase.from('products').insert(sampleIndustrialProducts);
+      if (error) console.error("Error Supabase:", error);
     }
   };
 
@@ -493,12 +498,12 @@ export default function AdminPage() {
               </div>
               <div className="space-y-3 max-h-[700px] overflow-y-auto pr-2 scrollbar-hide">
                 {filteredInventory.map((product) => {
-                  const firstMedia = Array.isArray(product.images) ? product.images[0] : '';
+                  const firstMedia = Array.isArray(product.images) && product.images[0] ? product.images[0] : FALLBACK_INDUSTRIAL_SVG;
                   return (
                     <div key={product.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-blue-500/40 transition-colors gap-4">
                       <div className="flex items-center gap-4 min-w-0">
                         <div className="w-14 h-14 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          {firstMedia ? <img src={firstMedia} alt={product.title} className="w-full h-full object-contain p-1" /> : <Layers className="w-5 h-5 text-slate-500" />}
+                          <img src={firstMedia} alt={product.title} className="w-full h-full object-contain p-1" />
                         </div>
                         <div className="min-w-0 flex flex-col justify-center">
                           <h3 className="font-bold text-slate-100 text-sm truncate mb-1">{product.title}</h3>

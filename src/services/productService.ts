@@ -1,18 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { products as fallbackLocalProducts, type Product } from '@/data/products';
 
-const ICONS = {
-  energia: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2300E5FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14H4z"/></svg>',
-  herramientas: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2300E5FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-  default: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2300E5FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>'
-};
-
-const getCategoryFallbackIcon = (category: string) => {
-  const cat = (category || '').toUpperCase();
-  if (cat.includes('TRANSFORMADORES') || cat.includes('RESPALDO') || cat.includes('PROTECCION') || cat.includes('ILUMINACION')) return ICONS.energia;
-  if (cat.includes('HERRAMIENTAS') || cat.includes('CONDUCTORES')) return ICONS.herramientas;
-  return ICONS.default;
-};
+const FALLBACK_INDUSTRIAL_SVG =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none"><rect width="400" height="400" rx="32" fill="%230A0E17"/><circle cx="200" cy="200" r="120" stroke="%230044FF" stroke-width="4" stroke-dasharray="12 12" opacity="0.5"/><circle cx="200" cy="200" r="85" fill="%230044FF" fill-opacity="0.15" stroke="%2300E5FF" stroke-width="3"/><path d="M215 115L145 215H200L185 285L255 185H200L215 115Z" fill="%2300E5FF" stroke="%23FFFFFF" stroke-width="4" stroke-linejoin="round"/><text x="200" y="355" text-anchor="middle" fill="%2300E5FF" font-family="sans-serif" font-weight="900" font-size="18" letter-spacing="4">ENERGY KVA</text></svg>';
 
 const formatProduct = (item: any): Product => {
   const stockQty = Number(item.stock ?? 100);
@@ -29,8 +19,9 @@ const formatProduct = (item: any): Product => {
     }
   }
 
+  // Si no hay imagen válida provista por el admin o la DB, se inyecta directamente el emblema KVA
   if (parsedImages.length === 0) {
-    parsedImages = [getCategoryFallbackIcon(item.category)];
+    parsedImages = [FALLBACK_INDUSTRIAL_SVG];
   }
 
   return {
@@ -45,11 +36,9 @@ const formatProduct = (item: any): Product => {
     features: Array.isArray(item.features) && item.features.length > 0 
       ? item.features 
       : ['Garantía directa de tienda', 'Despacho a nivel nacional'],
-    paymentMethods: ['Pago Móvil', 'Zelle', 'Binance Pay', 'Transferencia'],
   };
 };
 
-// Helper para leer caché local rápida
 const getLocalData = (key: string) => {
   if (typeof window !== 'undefined') {
     const data = localStorage.getItem(key);
@@ -74,10 +63,10 @@ export const productService = {
         return data.map(formatProduct);
       }
 
-      // 3. Fallback: Base de datos industrial mockeada de products.ts
-      return fallbackLocalProducts;
+      // 3. Fallback: Base de datos industrial mockeada
+      return fallbackLocalProducts.map(formatProduct);
     } catch (err) {
-      return fallbackLocalProducts;
+      return fallbackLocalProducts.map(formatProduct);
     }
   },
 
@@ -86,7 +75,7 @@ export const productService = {
       const allProducts = await this.getProducts();
       return allProducts.find(p => String(p.id) === String(id));
     } catch (err) {
-      return fallbackLocalProducts.find(p => String(p.id) === String(id));
+      return fallbackLocalProducts.map(formatProduct).find(p => String(p.id) === String(id));
     }
   },
 
@@ -95,7 +84,7 @@ export const productService = {
       const allProducts = await this.getProducts();
       return allProducts.filter(p => p.category.toUpperCase() === category.toUpperCase() && String(p.id) !== String(currentProductId)).slice(0, 10);
     } catch (err) {
-      return fallbackLocalProducts.filter(p => p.category.toUpperCase() === category.toUpperCase() && String(p.id) !== String(currentProductId)).slice(0, 10);
+      return fallbackLocalProducts.map(formatProduct).filter(p => p.category.toUpperCase() === category.toUpperCase() && String(p.id) !== String(currentProductId)).slice(0, 10);
     }
   }
 };

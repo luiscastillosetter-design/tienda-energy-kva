@@ -45,6 +45,11 @@ export function KvaAdvisorModal() {
     if (sessionStorage.getItem('dismiss_advisor') === 'true') {
       setIsDismissed(true);
     }
+
+    // Escucha el evento enviado desde BottomNav.tsx
+    const handleOpenAdvisor = () => setIsOpen(true);
+    window.addEventListener('open-advisor', handleOpenAdvisor);
+    return () => window.removeEventListener('open-advisor', handleOpenAdvisor);
   }, []);
 
   const handleDismiss = (e: React.MouseEvent) => {
@@ -133,30 +138,31 @@ export function KvaAdvisorModal() {
 
   return (
     <>
-      <div className="fixed bottom-[90px] md:bottom-8 right-4 sm:right-6 z-[100] group">
+      {/* BOTÓN FLOTANTE LATERAL (Oculto en móvil, sólo visible en PC) */}
+      <div className="hidden md:block fixed bottom-8 right-6 z-[100] group">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="w-12 h-12 md:w-auto md:px-5 md:py-3.5 rounded-full liquid-glass-active text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/20"
+          className="px-5 py-3.5 rounded-full liquid-glass-active text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/20"
           aria-label="Abrir Asesor de Energía con IA"
         >
           <div className="relative flex items-center justify-center">
             <span className="absolute w-full h-full rounded-full bg-cyan-300 animate-ping opacity-75" />
-            <Cpu className="w-5 h-5 md:w-4 md:h-4 text-cyan-100 group-hover:rotate-12 transition-transform relative z-10" />
+            <Cpu className="w-4 h-4 text-cyan-100 group-hover:rotate-12 transition-transform relative z-10" />
           </div>
-          <span className="hidden md:inline drop-shadow-sm font-black relative z-10">Dimensionar Carga (AI)</span>
+          <span className="drop-shadow-sm font-black relative z-10">Dimensionar Carga (AI)</span>
         </button>
 
-        {/* La X ahora es visible en móvil SIEMPRE y oculta en PC hasta hacer hover */}
         <button 
           onClick={handleDismiss}
-          className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white w-6 h-6 rounded-full flex items-center justify-center cursor-pointer shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-50"
+          className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50"
           aria-label="Cerrar botón IA"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-3 h-3" />
         </button>
       </div>
 
+      {/* MODAL IA */}
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 bg-[#03060D]/85 backdrop-blur-md overflow-y-auto">
           <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-[#060A14] border border-white/10 text-slate-100 shadow-[0_25px_60px_-15px_rgba(0,180,255,0.25)] overflow-hidden">

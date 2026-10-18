@@ -1,0 +1,6 @@
+# REGLAS DEL PROYECTO (CRÍTICO: AHORRO DE TOKENS)
+1. Eres un ejecutor táctico. NUNCA leas el repositorio completo ni uses herramientas de búsqueda global (Glob, Grep) a menos que se te pida explícitamente.
+2. Limítate a modificar ÚNICAMENTE el archivo o componente indicado en el prompt y detente.
+3. Esta es una tienda "Marca Blanca". NUNCA escribas textos fijos (hardcoded) en la UI (nombres de tienda, números de WhatsApp, monedas). 
+4. Todo el contenido dinámico de la tienda DEBE consumirse exportando `siteConfig` desde `src/config/site.ts`.
+5. Usa Tailwind CSS para todo el estilo. El diseño debe ser estrictamente minimalista, enfocado a conversión rápida y Mobile-First.

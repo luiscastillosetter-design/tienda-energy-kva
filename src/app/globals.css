@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F6F8FB;
+  --foreground: #0A0E17;
+}
+
+@theme {
+  --color-pearl: #F6F8FB;
+  --color-glass-dark: #05070E;
+  --color-electric-blue: #0044FF;
+  --color-cyan-glow: #00E5FF;
+}
+
+/* Animación estándar de corriente eléctrica neón (100% compatible con Turbopack y PostCSS) */
+@keyframes neon-circuit-flow {
+  0% {
+    background-position: 200% 0%;
+  }
+  100% {
+    background-position: -200% 0%;
+  }
+}
+
+@layer utilities {
+  /* 💎 TEXTURA PIEL DE ROBOT CON PANELES BISELADOS DEFINIDOS */
+  .bg-robot-skin {
+    background-color: #F3F6FA;
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 75%),
+      url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 178h180v1.5H0zM178 0v180h1.5V0z' fill='rgba(15,23,42,0.09)'/%3E%3Cpath d='M0 179.5h180V180H0zM179.5 0v180H180V0z' fill='rgba(255,255,255,0.95)'/%3E%3Cpath d='M0 89h180v1H0zM89 0v180h1V0z' fill='rgba(15,23,42,0.04)'/%3E%3Cpath d='M0 90h180v1H0zM90 0v180h1V0z' fill='rgba(255,255,255,0.85)'/%3E%3Ccircle cx='178' cy='178' r='2.5' fill='rgba(15,23,42,0.12)'/%3E%3Ccircle cx='177' cy='177' r='1.5' fill='rgba(255,255,255,0.9)'/%3E%3Ccircle cx='89' cy='89' r='2' fill='rgba(15,23,42,0.08)'/%3E%3C/g%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+    background-size: 100% 100%, 180px 180px, 200px 200px;
+    background-attachment: scroll, fixed, fixed;
+  }
+
+  /* 💎 LÁMINA PRINCIPAL SUPERPUESTA AL HERO */
+  .lamina-blanca {
+    position: relative;
+    z-index: 30;
+    border-top-left-radius: 2.5rem;
+    border-top-right-radius: 2.5rem;
+    border-bottom-left-radius: 2rem;
+    border-bottom-right-radius: 2rem;
+    box-shadow:
+      0 -20px 50px -10px rgba(5, 10, 24, 0.7),
+      0 -4px 25px 0 rgba(0, 229, 255, 0.22);
+  }
+
+  /* 💎 BISEL HENDIDO (HUECO SOMBREADO) CON LUZ NEÓN CIAN ALREDEDOR DE LA PÁGINA */
+  .chasis-bisel {
+    position: relative;
+    /* Canal físico tallado hacia adentro en todo el perímetro (arriba, lados y abajo) */
+    box-shadow:
+      0 -20px 50px -10px rgba(5, 10, 24, 0.65),
+      inset 0 0 0 7px #E2E8F0,
+      inset 0 6px 14px rgba(5, 10, 24, 0.35),
+      inset 0 -6px 14px rgba(5, 10, 24, 0.25),
+      inset 6px 0 14px rgba(5, 10, 24, 0.25),
+      inset -6px 0 14px rgba(5, 10, 24, 0.25),
+      inset 0 0 0 1.5px rgba(255, 255, 255, 0.95);
+  }
+
+  /* Corriente eléctrica azul/cian viajando dentro del bisel hueco perimetral */
+  .chasis-bisel::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: inherit;
+    padding: 3.5px;
+    background: linear-gradient(
+      115deg,
+      rgba(0, 68, 255, 0.18) 0%,
+      rgba(0, 68, 255, 0.18) 32%,
+      rgba(0, 140, 255, 0.85) 44%,
+      #00E5FF 50%,
+      #FFFFFF 52%,
+      #00E5FF 54%,
+      rgba(0, 140, 255, 0.85) 60%,
+      rgba(0, 68, 255, 0.18) 72%,
+      rgba(0, 68, 255, 0.18) 100%
+    );
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.9)) drop-shadow(0 0 12px rgba(0, 68, 255, 0.7));
+    pointer-events: none;
+    animation: neon-circuit-flow 4.5s linear infinite;
+    z-index: 45;
+  }
+
+  /* 💎 1. NÚCLEO OSCURO (TRUE LIQUID GLASS) */
+  /* IMPORTANTE: :where(:not(.absolute)...) evita pisar position:absolute en las flechas de los carruseles */
+  .liquid-glass-dark:where(:not(.absolute):not(.fixed):not(.sticky)) {
+    position: relative;
+  }
+
+  .liquid-glass-dark {
+    background: rgba(5, 7, 14, 0.88);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9999px;
+    box-shadow:
+      inset 0 -3px 8px rgba(0, 229, 255, 0.45),
+      inset 0 -8px 24px rgba(0, 68, 255, 0.35),
+      0 8px 16px -4px rgba(0, 0, 0, 0.45),
+      0 12px 24px -6px rgba(0, 229, 255, 0.25);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* 💎 2. DOMO ESPECULAR SUPERIOR 3D */
+  .liquid-glass-dark::before,
+  .liquid-glass-active::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    right: 4px;
+    height: 44%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 9999px 9999px 0 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .liquid-glass-dark:hover {
+    background: rgba(10, 14, 25, 0.94);
+    border-color: rgba(0, 229, 255, 0.45);
+    box-shadow:
+      inset 0 -3px 10px rgba(0, 229, 255, 0.65),
+      inset 0 -8px 24px rgba(0, 68, 255, 0.45),
+      0 10px 20px -4px rgba(0, 0, 0, 0.55),
+      0 16px 32px -6px rgba(0, 229, 255, 0.35);
+  }
+
+  /* 💎 3. BOTÓN ACTIVO (AZUL ELÉCTRICO PURO) */
+  .liquid-glass-active:where(:not(.absolute):not(.fixed):not(.sticky)) {
+    position: relative;
+  }
+
+  .liquid-glass-active {
+    background: linear-gradient(180deg, rgba(0, 140, 255, 0.88) 0%, rgba(0, 68, 255, 0.96) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 9999px;
+    box-shadow:
+      inset 0 -3px 8px rgba(0, 229, 255, 0.85),
+      0 8px 16px -4px rgba(0, 0, 0, 0.35),
+      0 14px 28px -4px rgba(0, 68, 255, 0.55);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .liquid-glass-active:hover {
+    background: linear-gradient(180deg, rgba(30, 160, 255, 0.95) 0%, rgba(0, 80, 255, 1) 100%);
+    box-shadow:
+      inset 0 -3px 10px rgba(0, 229, 255, 0.95),
+      0 10px 20px -4px rgba(0, 0, 0, 0.45),
+      0 18px 36px -4px rgba(0, 68, 255, 0.7);
+  }
+
+  /* 💎 4. INPUTS Y BUSCADORES */
+  .liquid-glass-input:where(:not(.absolute):not(.fixed):not(.sticky)) {
+    position: relative;
+  }
+
+  .liquid-glass-input {
+    background: rgba(5, 7, 14, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      inset 0 3px 6px rgba(0, 0, 0, 0.8),
+      inset 0 -1px 2px rgba(255, 255, 255, 0.12),
+      0 4px 12px -2px rgba(0, 68, 255, 0.12);
+    transition: all 0.3s ease;
+  }
+
+  .liquid-glass-input:focus {
+    border-color: rgba(0, 229, 255, 0.65);
+    box-shadow:
+      inset 0 3px 6px rgba(0, 0, 0, 0.8),
+      0 0 16px rgba(0, 229, 255, 0.35);
+  }
+
+  .liquid-glass-input-light {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(10, 14, 23, 0.12);
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .liquid-glass-input-light:focus {
+    border-color: rgba(0, 68, 255, 0.55);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow:
+      inset 0 3px 6px rgba(0, 0, 0, 0.06),
+      0 0 0 3px rgba(0, 68, 255, 0.15);
+  }
+
+  /* 💎 5. TARJETAS PERLADAS (CRISTAL ESMERILADO SOBRE PIEL DE ROBOT) */
+  .liquid-glass-pearl:where(:not(.absolute):not(.fixed):not(.sticky)) {
+    position: relative;
+  }
+
+  .liquid-glass-pearl {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 248, 251, 0.84) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    border-radius: 1.5rem;
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 1),
+      inset 0 -3px 8px rgba(0, 68, 255, 0.08),
+      0 14px 28px -6px rgba(10, 20, 40, 0.12),
+      0 6px 14px -2px rgba(0, 68, 255, 0.08);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .liquid-glass-pearl:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 229, 255, 0.55);
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 1),
+      inset 0 -4px 12px rgba(0, 229, 255, 0.2),
+      0 20px 34px -8px rgba(10, 20, 40, 0.16),
+      0 10px 22px -2px rgba(0, 68, 255, 0.2);
+  }
+
+  /* 💎 6. HEADER CLARO EN SCROLL (SIN LÍNEA BLANCA INFERIOR) */
+  .liquid-glass-light {
+    background: rgba(246, 248, 251, 0.88);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.12);
+  }
+
+  .liquid-glass-header-pearl {
+    background: rgba(246, 248, 251, 0.86);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 8px 24px -8px rgba(10, 20, 40, 0.12);
+  }
+}
+
+/* Textura Piel de Robot aplicada directamente al body sin usar @apply */
+body {
+  background-color: #F3F6FA;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 75%),
+    url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 178h180v1.5H0zM178 0v180h1.5V0z' fill='rgba(15,23,42,0.09)'/%3E%3Cpath d='M0 179.5h180V180H0zM179.5 0v180H180V0z' fill='rgba(255,255,255,0.95)'/%3E%3Cpath d='M0 89h180v1H0zM89 0v180h1V0z' fill='rgba(15,23,42,0.04)'/%3E%3Cpath d='M0 90h180v1H0zM90 0v180h1V0z' fill='rgba(255,255,255,0.85)'/%3E%3Ccircle cx='178' cy='178' r='2.5' fill='rgba(15,23,42,0.12)'/%3E%3Ccircle cx='177' cy='177' r='1.5' fill='rgba(255,255,255,0.9)'/%3E%3Ccircle cx='89' cy='89' r='2' fill='rgba(15,23,42,0.08)'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 180px 180px, 200px 200px;
+  background-attachment: scroll, fixed, fixed;
+  color: #0F172A;
+  overflow-x: hidden;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "haiku",
+  "enabledMcpServers": {
+    "github": {
+      "enabled": true,
+      "config": {}
+    },
+    "context7": {
+      "enabled": true,
+      "config": {}
+    }
+  },
+  "disabledMcpServers": [
+    "azure",
+    "aws",
+    "gcp",
+    "slack",
+    "jira",
+    "linear",
+    "figma",
+    "playwright",
+    "docker",
+    "kubernetes",
+    "terraform"
+  ],
+  "permissions": {
+    "allowedTools": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash"
+    ],
+    "autoAcceptPattern": "^(Read|Edit).*\\.(ts|tsx|json)$"
+  },
+  "alwaysThinkingEnabled": false,
+  "contextBudget": "preserve-last-20-percent",
+  "tokenManagement": {
+    "compactAfter": 150000,
+    "strategy": "aggressive"
+  }
+}

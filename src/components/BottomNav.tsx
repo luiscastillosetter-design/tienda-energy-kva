@@ -18,10 +18,14 @@ export default function BottomNav() {
 
   useEffect(() => {
     const handleMenuState = (e: CustomEvent) => {
-      setIsMenuOpen(e.detail.isOpen);
+      setIsMenuOpen(Boolean(e.detail?.isOpen));
     };
     window.addEventListener('kva-menu-toggle' as any, handleMenuState);
-    return () => window.removeEventListener('kva-menu-toggle' as any, handleMenuState);
+    window.addEventListener('bk-menu-toggle' as any, handleMenuState);
+    return () => {
+      window.removeEventListener('kva-menu-toggle' as any, handleMenuState);
+      window.removeEventListener('bk-menu-toggle' as any, handleMenuState);
+    };
   }, []);
 
   if (pathname?.startsWith('/admin') || isMenuOpen || isCartOpen) return null;

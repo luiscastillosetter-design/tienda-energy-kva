@@ -12,8 +12,8 @@ const defaultOffers = [
     id: 1,
     title: 'TRANSFORMADORES DE DISTRIBUCIÓN',
     description: 'Equipa tu tendido eléctrico, finca o urbanismo con equipos certificados bajo normas de Corpoelec.',
-    desktopImg: '/ofertas/oferta-transformadores.jpg',
-    mobileImg: '/ofertas/oferta-transformadores-mobile.jpg',
+    desktopImg: '/ofertas/oferta1.png',
+    mobileImg: '/ofertas/oferta1-mobile.png',
     btnLink: '/catalogo?category=TRANSFORMADORES',
     tag: 'Garantía Oficial KVA',
   },
@@ -21,8 +21,8 @@ const defaultOffers = [
     id: 2,
     title: 'PLANTAS ELÉCTRICAS Y RESPALDO',
     description: 'Soluciones continuas e insonorizadas en diésel y estaciones portátiles LiFePO4 para cero apagones.',
-    desktopImg: '/ofertas/oferta-plantas.jpg',
-    mobileImg: '/ofertas/oferta-plantas-mobile.jpg',
+    desktopImg: '/ofertas/oferta2.png',
+    mobileImg: '/ofertas/oferta2-mobile.png',
     btnLink: '/catalogo?category=RESPALDO',
     tag: 'Alta Eficiencia',
   },
@@ -45,7 +45,7 @@ export function OffersCarousel() {
         } else {
           const saved = localStorage.getItem('kva_offers_db');
           if (saved) {
-            try { setOffers(JSON.parse(saved)); } catch (e) {}
+            try { setOffers(JSON.parse(saved)); } catch {}
           }
         }
       }

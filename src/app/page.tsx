@@ -225,7 +225,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-transparent pb-20 overflow-hidden">
       <HeroCarousel />
 
-      <div className="lamina-blanca bg-robot-skin chasis-bisel -mt-16 sm:-mt-24 md:-mt-32 pt-6 sm:pt-8 pb-14 mx-0 sm:mx-2 md:mx-4">
+      <div className="lamina-blanca bg-robot-skin chasis-bisel -mt-8 md:-mt-10 pt-6 sm:pt-8 pb-14 mx-0 sm:mx-2 md:mx-4">
         
         <div className="w-full px-2 sm:px-6 md:px-12 lg:px-16 xl:px-20 mb-2">
           <CategoryDock

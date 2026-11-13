@@ -8,7 +8,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { adminWrite, setAdminKey, clearAdminKey, getAdminKey, verifyAdminKey } from '@/lib/adminDb';
+import { adminWrite, adminUploadFile, setAdminKey, clearAdminKey, getAdminKey, verifyAdminKey } from '@/lib/adminDb';
+import { DEFAULT_BRAND, rowToBrand, broadcastBrand } from '@/lib/brandSettings';
+import { isVideoUrl } from '@/lib/mediaUtils';
 import { siteConfig } from '@/config/site';
 import { FALLBACK_INDUSTRIAL_SVG } from '@/data/products';
 import { productService, formatProduct } from '@/services/productService';
@@ -16,11 +18,52 @@ import { normalizeCategoryKey, slugifyCategory } from '@/lib/categoryUtils';
 import KiraPanel from '@/components/KiraPanel';
 import { DEFAULT_CONTACT, rowToContact, broadcastContact, type ContactSettings } from '@/lib/contactSettings';
 
+const EMPTY_HERO = { title: '', subtitle: '', button_text: '', button_link: '/catalogo', media_url: '', mobile_media_url: '', is_active: true };
+const MEDIA_ACCEPT = '.mp4,.webm,.png,.jpg,.jpeg,.webp,video/mp4,video/webm,image/png,image/jpeg,image/webp';
+
+// Campo de medio: vista previa + subida directa a Storage (vía /api/admin/upload) + URL manual
+function MediaField({ label, value, onChange, accept, folder, onNotify }: {
+  label: string; value: string; onChange: (url: string) => void; accept: string; folder: string; onNotify: (m: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setBusy(true);
+    const { url, error } = await adminUploadFile(file, folder);
+    setBusy(false);
+    if (error || !url) onNotify(`Error subiendo archivo: ${error}`);
+    else { onChange(url); onNotify('Archivo subido correctamente.'); }
+  };
+  return (
+    <div>
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">{label}</label>
+      {value && (
+        <div className="mb-2 h-28 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center">
+          {isVideoUrl(value)
+            ? <video src={value} autoPlay loop muted playsInline className="h-full w-full object-contain" />
+            // eslint-disable-next-line @next/next/no-img-element
+            : <img src={value} alt="Vista previa" className="h-full w-full object-contain" />}
+        </div>
+      )}
+      <div className="flex gap-2">
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://... (pega una URL)" className="flex-1 min-w-0 h-11 px-4 liquid-glass-input text-white rounded-full focus:outline-none font-medium text-xs" />
+        <label className={`px-4 h-11 flex items-center rounded-full liquid-glass-active text-white text-[10px] font-black uppercase tracking-wider cursor-pointer whitespace-nowrap ${busy ? 'opacity-60 pointer-events-none' : ''}`}>
+          {busy ? 'Subiendo...' : 'Subir archivo'}
+          <input type="file" accept={accept} className="hidden" onChange={pick} />
+        </label>
+        {value && <button type="button" onClick={() => onChange('')} className="px-3 h-11 rounded-full liquid-glass-dark text-red-400 cursor-pointer" aria-label="Quitar"><X size={14} /></button>}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<
-    'orders' | 'products' | 'ofertas' | 'categories' | 'branding' | 'contact' | 'advisor'
+    'orders' | 'products' | 'ofertas' | 'categories' | 'branding' | 'hero' | 'contact' | 'advisor'
   >('orders');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -50,7 +93,8 @@ export default function AdminPage() {
 
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [editingHeroId, setEditingHeroId] = useState<any>(null);
-  const [heroForm, setHeroForm] = useState({ title: '', btnLink: '/catalogo', desktopImg: '', mobileImg: '' });
+  const [heroForm, setHeroForm] = useState(EMPTY_HERO);
+  const [brandForm, setBrandForm] = useState({ store_name: 'Energy KvA', tagline: DEFAULT_BRAND.tagline, logo_url: '', footer_logo_url: '' });
 
   // ---- OFERTAS (por equipo del inventario) ----
   const [offers, setOffers] = useState<any[]>([]);
@@ -141,8 +185,7 @@ export default function AdminPage() {
     if (offersData) setOffers(offersData);
 
     // 4. Cargar Hero Banners
-    const { data: heroData } = await supabase.from('hero_slides').select('*').order('id', { ascending: true });
-    if (heroData) setHeroSlides(heroData);
+    await loadHero();
 
     // 5. Cargar Categorías
     let { data: catsData } = await supabase.from('categories').select('*').order('name', { ascending: true });
@@ -166,9 +209,15 @@ export default function AdminPage() {
     // 6. Cargar Branding
     const { data: brandData } = await supabase.from('store_settings').select('*').eq('id', 1).single();
     if (brandData) {
-      setStoreName(brandData.store_name);
-      setLogoWhite(brandData.logo_white);
-      setLogoDark(brandData.logo_dark);
+      setStoreName(brandData.store_name || siteConfig.storeName);
+      setLogoWhite(brandData.logo_white || siteConfig.branding.logoWhite);
+      setLogoDark(brandData.logo_dark || siteConfig.branding.logoDark);
+      setBrandForm({
+        store_name: brandData.store_name || 'Energy KvA',
+        tagline: brandData.tagline || DEFAULT_BRAND.tagline,
+        logo_url: brandData.logo_url || '',
+        footer_logo_url: brandData.footer_logo_url || '',
+      });
     }
   };
 
@@ -211,6 +260,99 @@ export default function AdminPage() {
       reader.onloadend = () => callback(reader.result as string);
       reader.readAsDataURL(file);
     }
+  };
+
+  const SQL_HINT = 'Ejecuta supabase/branding_and_hero_media.sql en Supabase.';
+
+  const handleSaveBrand = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = {
+      store_name: brandForm.store_name.trim() || 'Energy KvA',
+      tagline: brandForm.tagline.trim(),
+      logo_url: brandForm.logo_url.trim(),
+      footer_logo_url: brandForm.footer_logo_url.trim(),
+    };
+    let { error } = await adminWrite('store_settings', 'upsert', { values: { id: 1, ...clean }, onConflict: 'id' });
+    if (error) {
+      // Respaldo si aún no existen las columnas nuevas: guarda al menos el nombre
+      const r = await adminWrite('store_settings', 'upsert', { values: { id: 1, store_name: clean.store_name }, onConflict: 'id' });
+      showNotification(r.error ? `Error guardando la marca: ${r.error.message}` : `Solo se guardó el nombre. ${SQL_HINT}`);
+      return;
+    }
+    broadcastBrand(rowToBrand(clean));
+    setBrandForm(clean);
+    showNotification('¡Identidad corporativa publicada en la web!');
+  };
+
+  const loadHero = async () => {
+    let res: any = await supabase.from('hero_slides').select('*').order('sort_order', { ascending: true });
+    if (res.error) res = await supabase.from('hero_slides').select('*').order('id', { ascending: true });
+    if (res.data) setHeroSlides(res.data);
+  };
+
+  const resetHeroForm = () => { setEditingHeroId(null); setHeroForm(EMPTY_HERO); };
+
+  const handleSaveHero = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!heroForm.media_url.trim() && !heroForm.mobile_media_url.trim()) {
+      showNotification('Agrega al menos un video/imagen (ordenador o móvil).');
+      return;
+    }
+    const values = {
+      title: heroForm.title.trim(),
+      subtitle: heroForm.subtitle.trim(),
+      button_text: heroForm.button_text.trim(),
+      button_link: heroForm.button_link.trim() || '/catalogo',
+      media_url: heroForm.media_url.trim(),
+      mobile_media_url: heroForm.mobile_media_url.trim(),
+      is_active: heroForm.is_active,
+    };
+    let error: { message: string } | null;
+    if (editingHeroId !== null) {
+      ({ error } = await adminWrite('hero_slides', 'update', { values, match: { id: editingHeroId } }));
+    } else {
+      const next = heroSlides.reduce((m, s) => Math.max(m, Number(s.sort_order) || 0), 0) + 1;
+      ({ error } = await adminWrite('hero_slides', 'insert', { values: { ...values, sort_order: next } }));
+    }
+    if (error) { showNotification(`Error guardando slide (${error.message}). ${SQL_HINT}`); return; }
+    showNotification(editingHeroId !== null ? 'Slide actualizado.' : 'Slide creado.');
+    resetHeroForm();
+    await loadHero();
+  };
+
+  const startEditHero = (s: any) => {
+    setEditingHeroId(s.id);
+    setHeroForm({
+      title: s.title || '', subtitle: s.subtitle || '', button_text: s.button_text || '',
+      button_link: s.button_link || '/catalogo', media_url: s.media_url || '',
+      mobile_media_url: s.mobile_media_url || '', is_active: s.is_active !== false,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const moveHero = async (index: number, dir: -1 | 1) => {
+    const j = index + dir;
+    if (j < 0 || j >= heroSlides.length) return;
+    const reordered = [...heroSlides];
+    [reordered[index], reordered[j]] = [reordered[j], reordered[index]];
+    const results = await Promise.all(reordered.map((s, i) => adminWrite('hero_slides', 'update', { values: { sort_order: i + 1 }, match: { id: s.id } })));
+    if (results.some((r) => r.error)) showNotification(`No se pudo reordenar. ${SQL_HINT}`);
+    await loadHero();
+  };
+
+  const toggleHeroActive = async (s: any) => {
+    const { error } = await adminWrite('hero_slides', 'update', { values: { is_active: s.is_active === false }, match: { id: s.id } });
+    if (error) showNotification(`Error: ${error.message}. ${SQL_HINT}`);
+    await loadHero();
+  };
+
+  const deleteHero = async (s: any) => {
+    if (!window.confirm('¿Eliminar este slide del Hero?')) return;
+    const { error } = await adminWrite('hero_slides', 'delete', { match: { id: s.id } });
+    if (error) { showNotification(`Error eliminando: ${error.message}`); return; }
+    if (editingHeroId === s.id) resetHeroForm();
+    showNotification('Slide eliminado.');
+    await loadHero();
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -415,7 +557,7 @@ export default function AdminPage() {
     <main className="min-h-screen bg-robot-skin text-slate-200 pb-24 w-full">
       <header className="bg-[#0A0E17]/95 backdrop-blur-xl border-b border-white/10 py-4 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-28 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <img src={logoWhite || siteConfig.branding.logoWhite} alt="KVA" className="h-8 w-auto object-contain" />
+          <img src={brandForm.logo_url || logoWhite || siteConfig.branding.logoWhite} alt="KVA" className="h-8 w-auto object-contain" />
           <div className="h-6 w-px bg-white/10 hidden sm:block"></div>
           <h1 className="text-sm md:text-base font-black text-white uppercase tracking-wider">Consola Operativa</h1>
           <span className="hidden md:inline-block bg-emerald-900/30 border border-emerald-500/30 text-emerald-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-[0_0_10px_rgba(16,185,129,0.2)]">En Vivo</span>
@@ -434,6 +576,7 @@ export default function AdminPage() {
             { id: 'ofertas', icon: Zap, label: `Ofertas (${offers.length})` },
             { id: 'categories', icon: Layers, label: `Departamentos (${categories.length})` },
             { id: 'branding', icon: Settings, label: `Marca` },
+            { id: 'hero', icon: ImageIcon, label: `Banners / Hero (${heroSlides.length})` },
             { id: 'contact', icon: Phone, label: `Contacto y WhatsApp` },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -870,9 +1013,78 @@ export default function AdminPage() {
           </form>
         )}
         {activeTab === 'branding' && (
-          <div className="bg-[#0A0E17]/90 backdrop-blur-md border border-white/10 rounded-3xl p-8 max-w-2xl relative z-20 shadow-xl">
-             <h2 className="text-sm font-black text-white uppercase tracking-wider mb-6 pb-4 border-b border-white/10">Identidad Corporativa DB</h2>
-             <div className="text-xs text-slate-400">Configuración de Logo y Marca funcional...</div>
+          <form onSubmit={handleSaveBrand} className="bg-[#0A0E17]/90 backdrop-blur-md border border-white/10 rounded-3xl p-8 max-w-2xl relative z-20 shadow-xl space-y-5">
+            <h2 className="text-sm font-black text-white uppercase tracking-wider pb-4 border-b border-white/10">Marca e Identidad Corporativa</h2>
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">Nombre de la empresa / página</label>
+              <input type="text" value={brandForm.store_name} onChange={(e) => setBrandForm({ ...brandForm, store_name: e.target.value })} placeholder="Energy KvA" className="w-full h-12 px-5 liquid-glass-input text-white rounded-full focus:outline-none font-bold text-sm" />
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">Eslogan o descripción corta</label>
+              <input type="text" value={brandForm.tagline} onChange={(e) => setBrandForm({ ...brandForm, tagline: e.target.value })} placeholder="Transformadores, Respaldo Energético..." className="w-full h-12 px-5 liquid-glass-input text-white rounded-full focus:outline-none font-bold text-sm" />
+            </div>
+            <MediaField label="Logotipo principal (cabecera)" value={brandForm.logo_url} onChange={(url) => setBrandForm((f) => ({ ...f, logo_url: url }))} accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg" folder="branding" onNotify={showNotification} />
+            <MediaField label="Logotipo secundario / pie de página (opcional)" value={brandForm.footer_logo_url} onChange={(url) => setBrandForm((f) => ({ ...f, footer_logo_url: url }))} accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg" folder="branding" onNotify={showNotification} />
+            <button type="submit" className="w-full liquid-glass-active text-white font-black py-4 rounded-full uppercase tracking-widest text-xs cursor-pointer hover:brightness-110">Guardar y publicar en la web</button>
+          </form>
+        )}
+        {activeTab === 'hero' && (
+          <div className="relative z-20 grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <form onSubmit={handleSaveHero} className="bg-[#0A0E17]/90 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-xl space-y-5 h-fit">
+              <h2 className="text-sm font-black text-white uppercase tracking-wider pb-4 border-b border-white/10">{editingHeroId !== null ? 'Editar slide del Hero' : 'Nuevo slide del Hero'}</h2>
+              <MediaField label="Video o imagen para Ordenador (Desktop)" value={heroForm.media_url} onChange={(url) => setHeroForm((f) => ({ ...f, media_url: url }))} accept={MEDIA_ACCEPT} folder="hero" onNotify={showNotification} />
+              <MediaField label="Video o imagen para Móvil" value={heroForm.mobile_media_url} onChange={(url) => setHeroForm((f) => ({ ...f, mobile_media_url: url }))} accept={MEDIA_ACCEPT} folder="hero" onNotify={showNotification} />
+              {([
+                ['title', 'Título', 'ENERGÍA PURA'],
+                ['subtitle', 'Subtítulo / badge', 'Garantía Oficial • Guanare'],
+                ['button_text', 'Texto del botón', 'Explorar Equipos'],
+                ['button_link', 'Enlace del botón', '/catalogo'],
+              ] as const).map(([key, label, ph]) => (
+                <div key={key}>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">{label}</label>
+                  <input type="text" value={heroForm[key]} onChange={(e) => setHeroForm({ ...heroForm, [key]: e.target.value })} placeholder={ph} className="w-full h-12 px-5 liquid-glass-input text-white rounded-full focus:outline-none font-bold text-sm" />
+                </div>
+              ))}
+              <label className="flex items-center gap-3 text-xs font-black text-slate-300 uppercase tracking-wider cursor-pointer">
+                <input type="checkbox" checked={heroForm.is_active} onChange={(e) => setHeroForm({ ...heroForm, is_active: e.target.checked })} className="w-4 h-4 accent-cyan-400" />
+                Slide activo (visible en la tienda)
+              </label>
+              <div className="flex gap-3">
+                <button type="submit" className="flex-1 liquid-glass-active text-white font-black py-4 rounded-full uppercase tracking-widest text-xs cursor-pointer hover:brightness-110">{editingHeroId !== null ? 'Guardar cambios' : 'Crear slide'}</button>
+                {editingHeroId !== null && <button type="button" onClick={resetHeroForm} className="px-6 liquid-glass-dark text-slate-300 font-black rounded-full uppercase tracking-widest text-xs cursor-pointer">Cancelar</button>}
+              </div>
+            </form>
+
+            <div className="space-y-4">
+              {heroSlides.length === 0 && (
+                <div className="bg-[#0A0E17]/90 border border-white/10 rounded-3xl p-8 text-xs text-slate-400">Aún no hay slides. Mientras no exista ninguno activo, la web muestra el hero por defecto.</div>
+              )}
+              {heroSlides.map((s, i) => (
+                <div key={s.id} className="bg-[#0A0E17]/90 border border-white/10 rounded-3xl p-4 flex gap-4 items-center">
+                  <div className="w-28 h-20 rounded-xl bg-black/40 overflow-hidden flex-shrink-0">
+                    {isVideoUrl(s.media_url || s.mobile_media_url)
+                      ? <video src={s.media_url || s.mobile_media_url} muted playsInline className="w-full h-full object-cover" />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      : <img src={s.media_url || s.mobile_media_url} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-black text-white truncate">{s.title || '(sin título)'}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{s.subtitle || '—'}</p>
+                    <p className="text-[10px] mt-1 font-black uppercase tracking-wider">
+                      <span className={s.is_active === false ? 'text-red-400' : 'text-emerald-400'}>{s.is_active === false ? 'Inactivo' : 'Activo'}</span>
+                      <span className="text-slate-500"> • {s.mobile_media_url ? 'Desktop + Móvil' : 'Solo Desktop'}</span>
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-1.5 flex-shrink-0">
+                    <button type="button" onClick={() => moveHero(i, -1)} disabled={i === 0} className="px-2.5 py-1.5 rounded-full liquid-glass-dark text-xs text-slate-300 disabled:opacity-30 cursor-pointer" aria-label="Subir">↑</button>
+                    <button type="button" onClick={() => moveHero(i, 1)} disabled={i === heroSlides.length - 1} className="px-2.5 py-1.5 rounded-full liquid-glass-dark text-xs text-slate-300 disabled:opacity-30 cursor-pointer" aria-label="Bajar">↓</button>
+                    <button type="button" onClick={() => toggleHeroActive(s)} className="px-2.5 py-1.5 rounded-full liquid-glass-dark text-slate-300 cursor-pointer" aria-label="Activar/desactivar"><Eye size={14} /></button>
+                    <button type="button" onClick={() => startEditHero(s)} className="px-2.5 py-1.5 rounded-full liquid-glass-dark text-blue-400 cursor-pointer" aria-label="Editar"><Pencil size={14} /></button>
+                    <button type="button" onClick={() => deleteHero(s)} className="px-2.5 py-1.5 rounded-full liquid-glass-dark text-red-400 cursor-pointer" aria-label="Eliminar"><Trash2 size={14} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

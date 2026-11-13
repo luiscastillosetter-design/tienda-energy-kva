@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
+import { usePathname } from 'next/navigation';
+import {
   Cpu, X, Zap, ArrowRight, CheckCircle2, ShieldCheck, 
   Printer, MessageCircle, RefreshCw, ShoppingCart, 
   FileText, ChevronRight
@@ -26,6 +27,7 @@ const COMMON_APPLIANCES = [
 
 export function KvaAdvisorModal() {
   const contact = useContact();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   
@@ -131,7 +133,8 @@ export function KvaAdvisorModal() {
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  if (isDismissed) return null;
+  // En /admin el botón de KVA IA se oculta para no montarse sobre Kira IA
+  if (isDismissed || pathname?.startsWith('/admin')) return null;
 
   return (
     <>

@@ -30,6 +30,25 @@ export async function adminWrite(table: string, op: Op, opts: Opts = {}): Promis
   }
 }
 
+/** Sube un archivo a Supabase Storage (bucket site-media) vía URL firmada del servidor. Devuelve la URL pública. */
+export async function adminUploadFile(file: File, folder = 'misc'): Promise<{ url: string | null; error: string | null }> {
+  try {
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
+      body: JSON.stringify({ filename: file.name, folder }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) return { url: null, error: json.error || `HTTP ${res.status}` };
+    const { supabase } = await import('@/lib/supabase');
+    const { error } = await supabase.storage.from(json.bucket).uploadToSignedUrl(json.path, json.token, file, { contentType: file.type || undefined });
+    if (error) return { url: null, error: error.message };
+    return { url: json.publicUrl as string, error: null };
+  } catch (e: any) {
+    return { url: null, error: e?.message || 'Error de red' };
+  }
+}
+
 export async function verifyAdminKey(key: string): Promise<boolean> {
   try {
     const res = await fetch('/api/admin/db', {

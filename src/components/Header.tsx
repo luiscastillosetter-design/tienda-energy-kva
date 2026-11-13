@@ -28,6 +28,7 @@ import { productService } from '@/services/productService';
 import type { Product } from '@/data/products';
 import AuthModal from './AuthModal';
 import { useContact } from '@/lib/contactSettings';
+import { useBrand } from '@/lib/brandSettings';
 
 const iconMap: Record<string, any> = {
   LayoutGrid,
@@ -41,6 +42,7 @@ const iconMap: Record<string, any> = {
 
 function HeaderContent() {
   const contact = useContact();
+  const brand = useBrand();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -176,6 +178,12 @@ function HeaderContent() {
     setSearchQuery('');
   }, [pathname, searchParams]);
 
+  // Título visible de la pestaña según store_settings
+  useEffect(() => {
+    if (pathname?.startsWith('/admin')) return;
+    if (pathname === '/') document.title = `${brand.storeName} | ${brand.tagline}`;
+  }, [brand.storeName, brand.tagline, pathname]);
+
   if (pathname?.startsWith('/admin')) return null;
 
   const activeRateDisplay = () => {
@@ -288,11 +296,12 @@ function HeaderContent() {
           >
             <img
               src={
-                useLightHeader
+                brand.logoUrl ||
+                (useLightHeader
                   ? branding.logoDark
-                  : branding.logoWhite
+                  : branding.logoWhite)
               }
-              alt={siteConfig.name}
+              alt={brand.storeName}
               className={`w-auto shrink-0 max-w-[62vw] md:max-w-none object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left ${
                 useLightHeader
                   ? 'h-14 md:h-16'
@@ -438,8 +447,8 @@ function HeaderContent() {
             className="flex items-center gap-2.5"
           >
             <img
-              src={branding.logoWhite}
-              alt={siteConfig.name}
+              src={brand.logoUrl || branding.logoWhite}
+              alt={brand.storeName}
               className="h-10 w-auto object-contain scale-[1.1] origin-left"
             />
           </Link>

@@ -5,9 +5,11 @@ import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { useContact } from '@/lib/contactSettings';
+import { useBrand } from '@/lib/brandSettings';
 
 export default function Footer() {
   const contact = useContact();
+  const brand = useBrand();
   const pathname = usePathname();
 
   if (pathname?.startsWith('/admin')) return null;
@@ -18,11 +20,14 @@ export default function Footer() {
         
         {/* Columna 1: Marca (Dinámica conectada a siteConfig) */}
         <div className="flex flex-col items-start text-left">
+          {brand.footerLogoUrl && (
+            <img src={brand.footerLogoUrl} alt={brand.storeName} className="h-12 w-auto object-contain mb-4" />
+          )}
           <h3 className="text-xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent italic mb-4 uppercase">
-            {siteConfig.storeName}
+            {brand.storeName}
           </h3>
           <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-sm">
-            {siteConfig.description}
+            {brand.tagline}
           </p>
         </div>
 
@@ -69,7 +74,7 @@ export default function Footer() {
       {/* Copyright */}
       <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-xs text-slate-500 font-medium">
-          © {new Date().getFullYear()} {siteConfig.storeName}. Todos los derechos reservados.
+          © {new Date().getFullYear()} {brand.storeName}. Todos los derechos reservados.
         </p>
       </div>
     </footer>

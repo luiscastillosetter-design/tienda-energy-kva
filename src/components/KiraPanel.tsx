@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send } from 'lucide-react';
+import { getAdminKey } from '@/lib/adminDb';
 
 interface Msg { role: 'user' | 'assistant'; content: string }
 
@@ -28,7 +29,7 @@ export default function KiraPanel() {
     try {
       const res = await fetch('/api/kira/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
         body: JSON.stringify({ message, history }),
       });
       const data = await res.json();

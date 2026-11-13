@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { adminWrite, setAdminKey, clearAdminKey, getAdminKey, verifyAdminKey } from '@/lib/adminDb';
 import { siteConfig } from '@/config/site';
 import { FALLBACK_INDUSTRIAL_SVG } from '@/data/products';
 import { productService, formatProduct } from '@/services/productService';
@@ -81,14 +82,14 @@ export default function AdminPage() {
       showNotification('Completa todos los campos de contacto.');
       return;
     }
-    const { error } = await supabase.from('contact_settings').upsert({
+    const { error } = await adminWrite('contact_settings', 'upsert', { values: {
       id: 1,
       phone_display: clean.phoneDisplay,
       whatsapp: clean.whatsapp,
       email: clean.email,
       address: clean.address,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'id' });
+    }, onConflict: 'id' });
     if (error) {
       showNotification('Error guardando contacto (¿existe la tabla contact_settings?).');
       return;
@@ -101,12 +102,12 @@ export default function AdminPage() {
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
 
   const handleMarkValerySynced = async (order: any) => {
-    let { error } = await supabase.from('orders').update({
+    let { error } = await adminWrite('orders', 'update', { values: {
       status: 'SINCRONIZADO_VALERY',
       valery_synced_at: new Date().toISOString(),
-    }).eq('id', order.id);
+    }, match: { id: order.id } });
     if (error) {
-      const fb = await supabase.from('orders').update({ status: 'SINCRONIZADO_VALERY' }).eq('id', order.id);
+      const fb = await adminWrite('orders', 'update', { values: { status: 'SINCRONIZADO_VALERY' }, match: { id: order.id } });
       error = fb.error;
     }
     if (error) { showNotification('Error marcando la orden como sincronizada.'); return; }
@@ -114,11 +115,10 @@ export default function AdminPage() {
     showNotification('Orden marcada como sincronizada en Valery.');
   };
 
-  const ADMIN_PIN = 'Admin1234.';
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PIN) {
+    if (await verifyAdminKey(password)) {
+      setAdminKey(password);
       setIsAuthenticated(true);
       localStorage.setItem('admin_auth_kva_v2', 'true');
       loadAllData();
@@ -150,10 +150,10 @@ export default function AdminPage() {
     const missing = siteConfig.categories.filter((c) => c.id !== 'Todos' && !known.has(c.id));
     if (missing.length > 0) {
       // Migración automática de los departamentos base para no perder ninguno
-      await supabase.from('categories').upsert(
-        missing.map((c) => ({ id: c.id, name: c.name, shortName: c.shortName, slug: c.slug, iconName: c.iconName, image: c.image })),
-        { onConflict: 'id', ignoreDuplicates: true }
-      );
+      await adminWrite('categories', 'upsert', {
+        values: missing.map((c) => ({ id: c.id, name: c.name, shortName: c.shortName, slug: c.slug, iconName: c.iconName, image: c.image })),
+        onConflict: 'id',
+      });
       const re = await supabase.from('categories').select('*').order('name', { ascending: true });
       catsData = re.data;
     }
@@ -173,7 +173,7 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem('admin_auth_kva_v2') === 'true') {
+    if (localStorage.getItem('admin_auth_kva_v2') === 'true' && getAdminKey()) {
       setIsAuthenticated(true);
       loadAllData();
     }
@@ -235,11 +235,11 @@ export default function AdminPage() {
       updated_at: new Date().toISOString()
     };
 
-    let { data, error } = await supabase.from('products').upsert(updatedProduct, { onConflict: 'id' }).select().single();
+    let { data, error } = await adminWrite('products', 'upsert', { values: updatedProduct, onConflict: 'id', returning: true, single: true });
     if (error) {
       // Compatibilidad si aún no existe la columna category_manual
       const { category_manual, ...legacy } = updatedProduct;
-      ({ data, error } = await supabase.from('products').upsert(legacy, { onConflict: 'id' }).select().single());
+      ({ data, error } = await adminWrite('products', 'upsert', { values: legacy, onConflict: 'id', returning: true, single: true }));
     }
     
     if (error) {
@@ -276,7 +276,7 @@ export default function AdminPage() {
     if (confirm('¿Eliminar este equipo de la web? (Si Valery lo vuelve a enviar, aparecerá de nuevo)')) {
       setProducts(products.filter((p) => p.id !== id));
       showNotification('Equipo eliminado de la web.');
-      await supabase.from('products').delete().eq('id', id);
+      await adminWrite('products', 'delete', { match: { id } });
     }
   };
 
@@ -304,13 +304,13 @@ export default function AdminPage() {
     if (isNaN(promo) || promo <= 0) { showNotification('Define un precio o porcentaje válido.'); return; }
     if (promo >= offerProduct.price) { showNotification('El precio promocional debe ser menor al precio actual.'); return; }
     const percent = Math.round((1 - promo / offerProduct.price) * 10000) / 100;
-    const { data, error } = await supabase.from('product_offers').insert({
+    const { data, error } = await adminWrite('product_offers', 'insert', { values: {
       product_id: offerProduct.id,
       promo_price: promo,
       discount_percent: percent,
       label: offerLabel.trim() || 'OFERTA',
       active: offerActive,
-    }).select().single();
+    }, returning: true, single: true });
     if (error) { showNotification('Error publicando oferta (¿ejecutaste supabase/offers_categories.sql?).'); return; }
     setOffers([data, ...offers]);
     setOfferProduct(null); setOfferSearch(''); setOfferValue('');
@@ -318,7 +318,7 @@ export default function AdminPage() {
   };
 
   const handleToggleOffer = async (offer: any) => {
-    const { error } = await supabase.from('product_offers').update({ active: !offer.active }).eq('id', offer.id);
+    const { error } = await adminWrite('product_offers', 'update', { values: { active: !offer.active }, match: { id: offer.id } });
     if (error) { showNotification('Error actualizando oferta.'); return; }
     setOffers(offers.map((o) => (o.id === offer.id ? { ...o, active: !o.active } : o)));
   };
@@ -329,7 +329,7 @@ export default function AdminPage() {
     const promo = Number(editingOfferPrice.value);
     if (!(promo > 0) || (prod && promo >= prod.price)) { showNotification('Precio promocional inválido (debe ser menor al precio actual).'); return; }
     const percent = prod ? Math.round((1 - promo / prod.price) * 10000) / 100 : offer.discount_percent;
-    const { error } = await supabase.from('product_offers').update({ promo_price: promo, discount_percent: percent }).eq('id', offer.id);
+    const { error } = await adminWrite('product_offers', 'update', { values: { promo_price: promo, discount_percent: percent }, match: { id: offer.id } });
     if (error) { showNotification('Error guardando precio.'); return; }
     setOffers(offers.map((o) => (o.id === offer.id ? { ...o, promo_price: promo, discount_percent: percent } : o)));
     setEditingOfferPrice(null);
@@ -338,7 +338,7 @@ export default function AdminPage() {
 
   const handleDeleteOffer = async (id: number) => {
     if (!confirm('¿Eliminar esta oferta?')) return;
-    const { error } = await supabase.from('product_offers').delete().eq('id', id);
+    const { error } = await adminWrite('product_offers', 'delete', { match: { id } });
     if (error) { showNotification('Error eliminando oferta.'); return; }
     setOffers(offers.filter((o) => o.id !== id));
     showNotification('Oferta eliminada.');
@@ -354,7 +354,7 @@ export default function AdminPage() {
     if (!id) { showNotification('Escribe un nombre para el departamento.'); return; }
     if (categories.some((c: any) => normalizeCategoryKey(c.id) === id || normalizeCategoryKey(c.name) === id)) { showNotification('Ese departamento ya existe.'); return; }
     const row = { id, name, shortName: shortOf(name), slug: slugifyCategory(name), iconName: 'Zap', image: '' };
-    const { error } = await supabase.from('categories').insert(row);
+    const { error } = await adminWrite('categories', 'insert', { values: row });
     if (error) { showNotification('Error creando departamento.'); return; }
     setCategories([...categories, row]);
     setCategoryForm({ name: '' });
@@ -368,11 +368,11 @@ export default function AdminPage() {
     const cat = categories.find((c: any) => c.id === editingCategory.id);
     // El id se mantiene (los productos lo referencian); cambia el nombre visible en toda la tienda
     const patch = { name, shortName: shortOf(name), slug: slugifyCategory(name) };
-    const { error } = await supabase.from('categories').update(patch).eq('id', editingCategory.id);
+    const { error } = await adminWrite('categories', 'update', { values: patch, match: { id: editingCategory.id } });
     if (error) { showNotification('Error renombrando departamento.'); return; }
     // Productos guardados con el nombre antiguo (texto) se re-vinculan al departamento
     if (cat?.name && cat.name !== editingCategory.id) {
-      await supabase.from('products').update({ category: editingCategory.id }).eq('category', cat.name);
+      await adminWrite('products', 'update', { values: { category: editingCategory.id }, match: { category: cat.name } });
     }
     setCategories(categories.map((c: any) => (c.id === editingCategory.id ? { ...c, ...patch } : c)));
     setEditingCategory(null);
@@ -383,7 +383,7 @@ export default function AdminPage() {
     const count = products.filter((p) => String(p.category).toUpperCase() === String(cat.id).toUpperCase()).length;
     if (count > 0) { showNotification(`No se puede eliminar: tiene ${count} equipo(s) asignado(s).`); return; }
     if (!confirm(`¿Eliminar el departamento "${cat.name}"?`)) return;
-    const { error } = await supabase.from('categories').delete().eq('id', cat.id);
+    const { error } = await adminWrite('categories', 'delete', { match: { id: cat.id } });
     if (error) { showNotification('Error eliminando departamento.'); return; }
     setCategories(categories.filter((c: any) => c.id !== cat.id));
     showNotification('Departamento eliminado.');
@@ -422,7 +422,7 @@ export default function AdminPage() {
         </div>
         <div className="flex items-center gap-4">
           <Link href="/" className="px-5 py-2.5 rounded-full liquid-glass-input text-xs font-black text-blue-400 hover:text-white transition-colors border border-blue-500/20">Ver Tienda</Link>
-          <button onClick={() => { localStorage.removeItem('admin_auth_kva_v2'); setIsAuthenticated(false); }} className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors cursor-pointer">Desconectar</button>
+          <button onClick={() => { localStorage.removeItem('admin_auth_kva_v2'); clearAdminKey(); setIsAuthenticated(false); }} className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors cursor-pointer">Desconectar</button>
         </div>
       </header>
 

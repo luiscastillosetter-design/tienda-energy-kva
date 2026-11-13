@@ -68,7 +68,7 @@ export function CategoryDock({ onSelect, selectedCategory = 'Todos' }: CategoryD
                 key={`dock-cat-${item.id}`} 
                 type="button" 
                 onClick={() => onSelect(item.id)} 
-                className={`group flex items-center gap-2.5 px-5 sm:px-6 py-3.5 sm:py-4 text-xs sm:text-[13px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer active:scale-95 flex-shrink-0 rounded-full hover:-translate-y-1 ${isSelected ? 'liquid-glass-active text-white' : 'liquid-glass-dark text-slate-200 hover:text-white'}`}
+                className={`group flex items-center gap-2.5 px-3.5 sm:px-6 py-2 sm:py-4 text-xs sm:text-[13px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer active:scale-95 flex-shrink-0 rounded-full hover:-translate-y-1 ${isSelected ? 'liquid-glass-active text-white' : 'liquid-glass-dark text-slate-200 hover:text-white'}`}
               >
                 <Icon className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${isSelected ? 'text-white' : 'text-cyan-400'}`} />
                 <span className="whitespace-nowrap">{item.shortName || item.name}</span>

@@ -139,7 +139,7 @@ export function HeroCarousel() {
   const isCustom = slide.id !== 'default';
 
   return (
-    <div ref={containerRef} className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-start overflow-hidden bg-[#050811] pt-[184px] sm:pt-[216px] md:pt-[288px] lg:pt-[336px] xl:pt-[368px] pb-28 sm:pb-36 md:pb-44">
+    <div ref={containerRef} className="relative w-full min-h-[480px] lg:min-h-[560px] flex flex-col justify-start overflow-hidden bg-[#050811] pt-28 sm:pt-32 md:pt-36 lg:pt-40 pb-16 sm:pb-20 md:pb-24">
       {/* MEDIA: se monta únicamente el medio del dispositivo actual */}
       <div className="absolute inset-0 w-full h-full" key={slide.id}>
         {isDesktop !== null && (

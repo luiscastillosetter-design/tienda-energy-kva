@@ -234,7 +234,12 @@ function HeaderContent() {
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
             <span className="text-[11px] sm:text-xs font-bold text-slate-200 truncate">
-              {activeRateDisplay()}
+              {currency === 'USD' && (
+                <span className="md:hidden">Base: USD</span>
+              )}
+              <span className={currency === 'USD' ? 'hidden md:inline' : ''}>
+                {activeRateDisplay()}
+              </span>
             </span>
           </div>
 
@@ -305,7 +310,7 @@ function HeaderContent() {
               className={`w-auto shrink-0 max-w-[62vw] md:max-w-none object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left ${
                 useLightHeader
                   ? 'h-14 md:h-16'
-                  : 'h-28 sm:h-36 md:h-52 lg:h-64 xl:h-72'
+                  : 'h-14 sm:h-16 md:h-20 lg:h-24'
               }`}
             />
           </Link>
@@ -377,6 +382,20 @@ function HeaderContent() {
 
           {/* ACCIONES DERECHA */}
           <div className="flex items-center justify-end gap-2.5 sm:gap-4 flex-shrink-0 pt-3 md:pt-4">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-advisor'))}
+              className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 lg:py-3 rounded-full cursor-pointer font-bold transition-all hover:-translate-y-0.5 ${
+                useLightHeader
+                  ? 'bg-cyan-50 hover:bg-cyan-100 text-slate-900 border border-cyan-300/80'
+                  : 'liquid-glass-dark text-white'
+              }`}
+              aria-label="Abrir Calculadora KVA con IA"
+            >
+              <Zap className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs lg:text-sm uppercase tracking-wider">Calculadora KVA</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsAuthOpen(true)}

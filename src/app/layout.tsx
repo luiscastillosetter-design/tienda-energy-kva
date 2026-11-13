@@ -25,8 +25,10 @@ export default function RootLayout({
         <Header />
         <CartDrawer />
         <KvaAdvisorModal />
-        {children}
-        <Footer />
+        <div className="pb-24 md:pb-0">
+          {children}
+          <Footer />
+        </div>
         <BottomNav />
       </body>
     </html>

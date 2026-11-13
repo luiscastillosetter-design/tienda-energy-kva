@@ -29,7 +29,6 @@ export function KvaAdvisorModal() {
   const contact = useContact();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
   
   const [userPrompt, setUserPrompt] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -46,21 +45,11 @@ export function KvaAdvisorModal() {
 
   useEffect(() => {
     productService.getProducts().then(setLiveCatalog);
-    if (sessionStorage.getItem('dismiss_advisor') === 'true') {
-      setIsDismissed(true);
-    }
-
-    // Escucha el evento enviado desde BottomNav.tsx
+    // Escucha el evento enviado desde Header.tsx y BottomNav.tsx
     const handleOpenAdvisor = () => setIsOpen(true);
     window.addEventListener('open-advisor', handleOpenAdvisor);
     return () => window.removeEventListener('open-advisor', handleOpenAdvisor);
   }, []);
-
-  const handleDismiss = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDismissed(true);
-    sessionStorage.setItem('dismiss_advisor', 'true');
-  };
 
   const toggleItem = (name: string) => {
     setSelectedItems((prev) =>
@@ -133,36 +122,12 @@ export function KvaAdvisorModal() {
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // En /admin el botón de KVA IA se oculta para no montarse sobre Kira IA
-  if (isDismissed || pathname?.startsWith('/admin')) return null;
+  // En /admin el asesor KVA IA se oculta para no montarse sobre Kira IA
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <>
-      {/* BOTÓN FLOTANTE LATERAL (Oculto en móvil, sólo visible en PC) */}
-      <div className="hidden md:block fixed bottom-8 right-6 z-[100] group">
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="px-5 py-3.5 rounded-full liquid-glass-active text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/20"
-          aria-label="Abrir Asesor de Energía con IA"
-        >
-          <div className="relative flex items-center justify-center">
-            <span className="absolute w-full h-full rounded-full bg-cyan-300 animate-ping opacity-75" />
-            <Cpu className="w-4 h-4 text-cyan-100 group-hover:rotate-12 transition-transform relative z-10" />
-          </div>
-          <span className="drop-shadow-sm font-black relative z-10">Calcular Planta / KVA (IA)</span>
-        </button>
-
-        <button 
-          onClick={handleDismiss}
-          className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50"
-          aria-label="Cerrar botón IA"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      </div>
-
-      {/* MODAL IA */}
+      {/* MODAL IA (se abre con el evento 'open-advisor' desde Header y BottomNav) */}
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 bg-[#03060D]/85 backdrop-blur-md overflow-y-auto">
           <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-[#060A14] border border-white/10 text-slate-100 shadow-[0_25px_60px_-15px_rgba(0,180,255,0.25)] overflow-hidden">

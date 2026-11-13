@@ -42,7 +42,7 @@ export default function BottomNav() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 z-[45] liquid-glass-dark rounded-full px-2 py-1.5 shadow-2xl flex items-center justify-around border border-white/10">
+      <nav className="md:hidden fixed bottom-2.5 left-4 right-4 z-[45] h-14 pb-[env(safe-area-inset-bottom)] liquid-glass-dark rounded-full px-2 shadow-2xl flex items-center justify-around border border-white/10">
         <button onClick={handleHomeClick} className={`flex flex-col items-center gap-1 p-2 transition-transform active:scale-95 cursor-pointer ${pathname === '/' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-300'}`}>
           <Home className={`w-5 h-5 ${pathname === '/' ? 'drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]' : ''}`} />
           <span className="text-[9px] font-black uppercase tracking-wider">Inicio</span>

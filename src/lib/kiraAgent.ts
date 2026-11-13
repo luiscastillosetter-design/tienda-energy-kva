@@ -1,10 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-// Cliente servidor: usa service role si existe, si no la anon key (igual que el resto del admin)
-const db = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+const db = getSupabaseAdmin();
 
 export interface KiraMessage {
   role: 'user' | 'assistant';

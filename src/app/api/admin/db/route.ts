@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { timingSafeEqual } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +16,9 @@ const ALLOWED: Record<string, Array<'insert' | 'update' | 'upsert' | 'delete'>> 
   orders: ['update'], // solo marcar estado de sincronización con Valery
 };
 
+// Tablas con lectura habilitada vía service role (no públicas)
+const READABLE = ['orders'];
+
 function checkAdmin(req: NextRequest): boolean {
   const expected = process.env.ADMIN_PANEL_PASSWORD || process.env.ADMIN_PASSWORD || 'Admin1234.';
   const given = req.headers.get('x-admin-key') || '';
@@ -29,21 +32,29 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { op, table, values, match, onConflict, returning, single } = body || {};
+    const { op, table, values, match, onConflict, returning, single, order } = body || {};
 
     if (op === 'verify') return NextResponse.json({ ok: true });
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !serviceKey) {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json({ error: 'Falta SUPABASE_SERVICE_ROLE_KEY en el servidor' }, { status: 500 });
+    }
+
+    if (op === 'select') {
+      if (!READABLE.includes(table)) return NextResponse.json({ error: 'Lectura no permitida' }, { status: 403 });
+      let sq: any = getSupabaseAdmin().from(table).select('*');
+      if (match && typeof match === 'object') for (const [k, v] of Object.entries(match)) sq = sq.eq(k, v as any);
+      if (order?.column) sq = sq.order(order.column, { ascending: !!order.ascending });
+      const { data, error } = await sq;
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ data: data ?? [] });
     }
 
     if (!ALLOWED[table] || !ALLOWED[table].includes(op)) {
       return NextResponse.json({ error: 'Operación no permitida' }, { status: 403 });
     }
 
-    const db = createClient(url, serviceKey, { auth: { persistSession: false } });
+    const db = getSupabaseAdmin();
     const hasMatch = match && typeof match === 'object' && Object.keys(match).length > 0;
 
     let q: any;

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+
+const supabase = getSupabaseAdmin();
 import { normalizeCategoryKey, slugifyCategory, pickValeryCategory } from '@/lib/categoryUtils';
 
 const SYNC_SECRET = process.env.VALERY_SYNC_TOKEN || 'kva-valery-secret-2026';

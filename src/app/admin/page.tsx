@@ -129,7 +129,7 @@ export default function AdminPage() {
 
   const loadAllData = async () => {
     // 1. Cargar Órdenes
-    const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    const { data: ordersData } = await adminWrite('orders', 'select', { order: { column: 'created_at', ascending: false } });
     if (ordersData) setOrders(ordersData);
 
     // 2. Cargar Productos

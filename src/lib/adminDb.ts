@@ -5,13 +5,14 @@ export const getAdminKey = () => (typeof window === 'undefined' ? '' : sessionSt
 export const setAdminKey = (k: string) => sessionStorage.setItem(KEY_STORAGE, k);
 export const clearAdminKey = () => sessionStorage.removeItem(KEY_STORAGE);
 
-type Op = 'insert' | 'update' | 'upsert' | 'delete';
+type Op = 'insert' | 'update' | 'upsert' | 'delete' | 'select';
 interface Opts {
   values?: any;
   match?: Record<string, any>;
   onConflict?: string;
   returning?: boolean;
   single?: boolean;
+  order?: { column: string; ascending?: boolean };
 }
 
 export async function adminWrite(table: string, op: Op, opts: Opts = {}): Promise<{ data: any; error: { message: string } | null }> {

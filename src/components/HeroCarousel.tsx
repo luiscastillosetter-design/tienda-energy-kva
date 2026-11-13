@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { useContact } from '@/lib/contactSettings';
@@ -31,10 +31,32 @@ const FALLBACK_SLIDE: Slide = {
 
 const SLIDE_MS = 8000;
 
-function Media({ src, className }: { src: string; className: string }) {
+function Media({
+  src,
+  className,
+  videoRef,
+}: {
+  src: string;
+  className: string;
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+}) {
   if (!src) return null;
   if (isVideoUrl(src)) {
-    return <video key={src} autoPlay loop muted playsInline className={className} src={src} />;
+    return (
+      <video
+        key={src}
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        disablePictureInPicture
+        disableRemotePlayback
+        className={`${className} transform-gpu`}
+        src={src}
+      />
+    );
   }
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={src} alt="" className={className} />;
@@ -44,6 +66,44 @@ export function HeroCarousel() {
   const contact = useContact();
   const [slides, setSlides] = useState<Slide[]>([FALLBACK_SLIDE]);
   const [current, setCurrent] = useState(0);
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Un solo medio montado según el dispositivo
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // Pausa inteligente: Hero fuera de pantalla o pestaña oculta
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let inView = true;
+    const sync = () => {
+      const v = videoRef.current;
+      if (!v) return;
+      if (inView && !document.hidden) v.play().catch(() => {});
+      else v.pause();
+    };
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        sync();
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    document.addEventListener('visibilitychange', sync);
+    return () => {
+      io.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+    };
+  }, [current, isDesktop]);
 
   useEffect(() => {
     let active = true;
@@ -79,16 +139,16 @@ export function HeroCarousel() {
   const isCustom = slide.id !== 'default';
 
   return (
-    <div className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-start overflow-hidden bg-[#050811] pt-[184px] sm:pt-[216px] md:pt-[288px] lg:pt-[336px] xl:pt-[368px] pb-28 sm:pb-36 md:pb-44">
-      {/* MEDIA: móvil (md:hidden) y ordenador (hidden md:block) */}
+    <div ref={containerRef} className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-start overflow-hidden bg-[#050811] pt-[184px] sm:pt-[216px] md:pt-[288px] lg:pt-[336px] xl:pt-[368px] pb-28 sm:pb-36 md:pb-44">
+      {/* MEDIA: se monta únicamente el medio del dispositivo actual */}
       <div className="absolute inset-0 w-full h-full" key={slide.id}>
-        {slide.mobileMedia && (
-          <Media src={slide.mobileMedia} className="md:hidden w-full h-full object-cover opacity-60" />
+        {isDesktop !== null && (
+          <Media
+            src={isDesktop ? slide.media : slide.mobileMedia || slide.media}
+            videoRef={videoRef}
+            className="w-full h-full object-cover opacity-60"
+          />
         )}
-        <Media
-          src={slide.media}
-          className={`${slide.mobileMedia ? 'hidden md:block' : ''} w-full h-full object-cover opacity-60`}
-        />
         <div className="absolute inset-0 bg-gradient-to-b from-[#050811]/80 via-[#050811]/40 to-[#050811]/95 pointer-events-none" />
       </div>
 

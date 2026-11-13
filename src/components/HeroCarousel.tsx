@@ -26,7 +26,7 @@ export function HeroCarousel() {
     : siteConfig.branding.videoDesktop;
 
   return (
-    <div className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-center overflow-hidden bg-[#050811] pt-44 sm:pt-48 md:pt-60 lg:pt-64 xl:pt-72 pb-28 sm:pb-36 md:pb-44">
+    <div className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-start overflow-hidden bg-[#050811] pt-[184px] sm:pt-[216px] md:pt-[288px] lg:pt-[336px] xl:pt-[368px] pb-28 sm:pb-36 md:pb-44">
       {/* UN SOLO VIDEO ACTIVO EN MEMORIA SEGÚN DISPOSITIVO */}
       <div className="absolute inset-0 w-full h-full">
         <video

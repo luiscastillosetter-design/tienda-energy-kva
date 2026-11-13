@@ -281,7 +281,7 @@ function HeaderContent() {
             : 'bg-gradient-to-b from-[#07090E]/90 via-[#07090E]/60 to-transparent py-4 md:py-6'
         }`}
       >
-        <div className="w-full px-4 md:px-6 flex items-center justify-between gap-4 md:gap-8">
+        <div className="w-full px-4 md:px-6 flex items-start justify-between gap-4 md:gap-8">
           <Link
             href="/"
             className="flex items-center gap-3 flex-shrink-0 group cursor-pointer focus:outline-none"
@@ -293,16 +293,16 @@ function HeaderContent() {
                   : branding.logoWhite
               }
               alt={siteConfig.name}
-              className={`w-auto max-w-[62vw] md:max-w-none object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left ${
+              className={`w-auto shrink-0 max-w-[62vw] md:max-w-none object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left ${
                 useLightHeader
-                  ? 'h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32'
-                  : 'h-20 sm:h-24 md:h-32 lg:h-36 xl:h-44'
+                  ? 'h-14 md:h-16'
+                  : 'h-28 sm:h-36 md:h-52 lg:h-64 xl:h-72'
               }`}
             />
           </Link>
 
           {/* BUSCADOR DESKTOP CON AUTOCOMPLETADO */}
-          <div className="hidden md:flex flex-1 max-w-3xl flex-col relative mx-2 lg:mx-6">
+          <div className="hidden md:flex flex-1 max-w-3xl flex-col relative mx-2 lg:mx-6 pt-3 md:pt-4">
             <form
               onSubmit={handleSearchSubmit}
               className="flex items-center gap-3 w-full"
@@ -367,7 +367,7 @@ function HeaderContent() {
           </div>
 
           {/* ACCIONES DERECHA */}
-          <div className="flex items-center justify-end gap-2.5 sm:gap-4 flex-shrink-0">
+          <div className="flex items-center justify-end gap-2.5 sm:gap-4 flex-shrink-0 pt-3 md:pt-4">
             <button
               type="button"
               onClick={() => setIsAuthOpen(true)}

@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
+import { useContact } from '@/lib/contactSettings';
 import { ShieldCheck, ArrowRight, MessageCircle } from 'lucide-react';
 
 export function HeroCarousel() {
+  const contact = useContact();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ export function HeroCarousel() {
   }, []);
 
   const whatsappClean = String(
-    siteConfig.whatsapp?.number || siteConfig.contact.whatsapp || ''
+    contact.whatsapp || ''
   ).replace(/\D/g, '');
 
   const videoSrc = isMobile
@@ -24,7 +26,7 @@ export function HeroCarousel() {
     : siteConfig.branding.videoDesktop;
 
   return (
-    <div className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-center overflow-hidden bg-[#050811] pt-28 pb-28 sm:pb-36 md:pb-44">
+    <div className="relative w-full min-h-[82vh] sm:min-h-[88vh] md:h-[96vh] flex flex-col justify-center overflow-hidden bg-[#050811] pt-36 md:pt-44 pb-28 sm:pb-36 md:pb-44">
       {/* UN SOLO VIDEO ACTIVO EN MEMORIA SEGÚN DISPOSITIVO */}
       <div className="absolute inset-0 w-full h-full">
         <video
@@ -45,7 +47,7 @@ export function HeroCarousel() {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-dark text-[10px] sm:text-xs font-black text-cyan-300 mb-4 sm:mb-5">
           <ShieldCheck className="w-4 h-4 text-cyan-400 flex-shrink-0" />
           <span className="uppercase tracking-widest">
-            Garantía Oficial • {siteConfig.location.split('-')[0].trim()}
+            Garantía Oficial • {contact.address.split('-')[0].trim()}
           </span>
         </div>
 

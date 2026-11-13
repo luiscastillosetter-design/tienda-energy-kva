@@ -4,12 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { siteConfig } from '@/config/site';
+import { useContact } from '@/lib/contactSettings';
 import { 
   ChevronLeft, CheckCircle2, MapPin, CreditCard, 
   User, ShoppingBag, Copy, UploadCloud, FileCheck, ArrowRight
 } from 'lucide-react';
 
 export default function CheckoutPage() {
+  const contact = useContact();
   const { items, clearCart, currency, bcvRate, usdtRate } = useCartStore();
   const router = useRouter();
 
@@ -152,7 +154,7 @@ export default function CheckoutPage() {
       (comprobanteBase64 ? `- Comprobante adjunto en el sistema web.\n` : '') +
       `\nSolicito verificación de administración para despacho.`;
 
-    const whatsappNum = String(siteConfig.contact.whatsapp).replace(/\D/g, '');
+    const whatsappNum = String(contact.whatsapp).replace(/\D/g, '');
 
     setTimeout(() => {
       clearCart();

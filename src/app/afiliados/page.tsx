@@ -4,8 +4,10 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, MessageCircle } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useContact } from '@/lib/contactSettings';
 
 export default function Afiliados() {
+  const contact = useContact();
   const [formData, setFormData] = useState({ nombre: '', email: '', codigo: '' });
   const [submitted, setSubmitted] = useState(false);
   const [waLink, setWaLink] = useState('');
@@ -13,7 +15,7 @@ export default function Afiliados() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const mensaje = `Hola equipo de ${siteConfig.storeName} ⚡, deseo registrarme como aliado comercial B2B.\n\n*Mis datos corporativos:*\n👤 Nombre/Razón Social: ${formData.nombre}\n📧 Email: ${formData.email}\n🎟️ Código de Aliado sugerido: ${formData.codigo.toUpperCase()}\n\nQuedo atento a la aprobación.`;
-    const whatsappNum = String(siteConfig.contact.whatsapp || '').replace(/\D/g, '');
+    const whatsappNum = String(contact.whatsapp || '').replace(/\D/g, '');
     const link = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(mensaje)}`;
     setWaLink(link);
     setSubmitted(true);

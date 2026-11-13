@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useContact } from '@/lib/contactSettings';
 
 export default function Footer() {
+  const contact = useContact();
   const pathname = usePathname();
 
   if (pathname?.startsWith('/admin')) return null;
@@ -46,19 +48,19 @@ export default function Footer() {
               <div className="p-2 bg-[#1E293B] border border-slate-700 rounded-full text-cyan-400">
                 <Phone className="w-4 h-4" />
               </div>
-              <span className="text-sm text-slate-300 font-medium">{siteConfig.contact.phoneDisplay}</span>
+              <span className="text-sm text-slate-300 font-medium">{contact.phoneDisplay}</span>
             </li>
             <li className="flex items-center gap-3">
               <div className="p-2 bg-[#1E293B] border border-slate-700 rounded-full text-cyan-400">
                 <Mail className="w-4 h-4" />
               </div>
-              <span className="text-sm text-slate-300 font-medium">{siteConfig.contact.email}</span>
+              <span className="text-sm text-slate-300 font-medium">{contact.email}</span>
             </li>
             <li className="flex items-center gap-3">
               <div className="p-2 bg-[#1E293B] border border-slate-700 rounded-full text-cyan-400">
                 <MapPin className="w-4 h-4" />
               </div>
-              <span className="text-sm text-slate-300 font-medium">{siteConfig.location}</span>
+              <span className="text-sm text-slate-300 font-medium">{contact.address}</span>
             </li>
           </ul>
         </div>

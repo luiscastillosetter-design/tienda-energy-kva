@@ -27,6 +27,7 @@ import { supabase } from '@/lib/supabase';
 import { productService } from '@/services/productService';
 import type { Product } from '@/data/products';
 import AuthModal from './AuthModal';
+import { useContact } from '@/lib/contactSettings';
 
 const iconMap: Record<string, any> = {
   LayoutGrid,
@@ -39,6 +40,7 @@ const iconMap: Record<string, any> = {
 };
 
 function HeaderContent() {
+  const contact = useContact();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -214,9 +216,7 @@ function HeaderContent() {
     return `$${usdPrice.toFixed(2)}`;
   };
 
-  const whatsappClean = String(
-    siteConfig.whatsapp?.number || siteConfig.contact.whatsapp || ''
-  ).replace(/\D/g, '');
+  const whatsappClean = String(contact.whatsapp || '').replace(/\D/g, '');
 
   return (
     <>
@@ -293,7 +293,7 @@ function HeaderContent() {
                   : branding.logoWhite
               }
               alt={siteConfig.name}
-              className="h-10 sm:h-12 md:h-18 w-auto object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg scale-[1.1] md:scale-[1.2] origin-left"
+              className="h-12 sm:h-16 md:h-20 lg:h-24 xl:h-28 w-auto max-w-[150px] sm:max-w-[210px] md:max-w-[250px] lg:max-w-[330px] xl:max-w-[400px] object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left"
             />
           </Link>
 
@@ -543,7 +543,7 @@ function HeaderContent() {
               {siteConfig.navigation.map((navItem) => (
                 <Link
                   key={`drawer-nav-${navItem.href}`}
-                  href={navItem.href}
+                  href={navItem.href.startsWith('https://wa.me/') ? `https://wa.me/${whatsappClean}` : navItem.href}
                   onClick={() => setIsMenuOpen(false)}
                   className="flex items-center justify-between px-4 py-3.5 liquid-glass-dark text-xs font-bold text-slate-300 hover:text-white transition-all"
                 >
@@ -572,7 +572,7 @@ function HeaderContent() {
         <div className="p-4 border-t border-white/10 bg-[#07090E] space-y-4">
           <div className="flex items-start gap-2.5 text-[11px] text-slate-400">
             <MapPin className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-            <span>{siteConfig.location}</span>
+            <span>{contact.address}</span>
           </div>
 
           <a

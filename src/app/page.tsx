@@ -7,9 +7,11 @@ import { ChevronRight, ChevronLeft, ShoppingCart, MessageCircle, Ban } from 'luc
 import { HeroCarousel } from '@/components/HeroCarousel';
 import { CategoryDock } from '@/components/CategoryDock';
 import { OffersCarousel } from '@/components/OffersCarousel';
+import { ProductOffers } from '@/components/ProductOffers';
 import { productService } from '@/services/productService';
 import type { Product } from '@/data/products';
 import { siteConfig } from '@/config/site';
+import { useContact } from '@/lib/contactSettings';
 import { useCartStore } from '@/store/cartStore';
 
 const FALLBACK_INDUSTRIAL_SVG =
@@ -28,6 +30,7 @@ const ProductCarousel = ({
   formatPrice: (p: number) => string;
   handleAddToCart: (p: Product) => void;
 }) => {
+  const contact = useContact();
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +45,7 @@ const ProductCarousel = ({
   };
 
   const generateWaLink = (product: Product) => {
-    const cleanPhone = String(siteConfig.contact.whatsapp).replace(/\D/g, '');
+    const cleanPhone = String(contact.whatsapp).replace(/\D/g, '');
     const text = `Hola ENERGY KVA. Deseo consultar disponibilidad del equipo:\n\n📦 *${product.title}*\n🔹 Código: #${product.id}\n\nQuedo atento.`;
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
   };
@@ -244,6 +247,8 @@ export default function HomePage() {
         <div className="w-full px-2 sm:px-6 md:px-12 lg:px-16 xl:px-20 py-4 sm:py-6">
           <OffersCarousel />
         </div>
+
+        <ProductOffers />
 
         
 

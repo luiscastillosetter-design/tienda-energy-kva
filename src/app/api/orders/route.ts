@@ -40,6 +40,21 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
+    // Descuento automático de stock (sin bajar de 0) para evitar sobreventas
+    for (const it of items) {
+      try {
+        const qty = Math.max(0, Math.floor(Number(it.quantity) || 0));
+        const pid = it.id;
+        if (!pid || qty <= 0) continue;
+        const { data: prod } = await supabase.from('products').select('stock').eq('id', pid).maybeSingle();
+        if (!prod) continue;
+        const newStock = Math.max(0, Number(prod.stock || 0) - qty);
+        await supabase.from('products').update({ stock: newStock }).eq('id', pid);
+      } catch (e) {
+        console.error('Error descontando stock de', it?.id, e);
+      }
+    }
+
     return NextResponse.json({ success: true, order: data });
   } catch (error: any) {
     console.error('Error al procesar orden:', error);

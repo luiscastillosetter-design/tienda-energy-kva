@@ -7,6 +7,7 @@ import {
   FileText, ChevronRight
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useContact } from '@/lib/contactSettings';
 import { useCartStore } from '@/store/cartStore';
 import { productService } from '@/services/productService';
 import type { Product } from '@/data/products';
@@ -24,6 +25,7 @@ const COMMON_APPLIANCES = [
 ];
 
 export function KvaAdvisorModal() {
+  const contact = useContact();
   const [isOpen, setIsOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   
@@ -110,18 +112,13 @@ export function KvaAdvisorModal() {
 
   const handleSendQuotationWhatsApp = () => {
     if (!result) return;
-    const cleanPhone = String(siteConfig.contact.whatsapp).replace(/\D/g, '');
-    const itemsText = (result.b2bItems || [])
-      .map((item: any) => {
-        const prod = liveCatalog.find((p) => p.id === item.productId);
-        return `• ${item.quantity}x *${prod?.title || item.productId}* ($${((prod?.price || 0) * item.quantity).toFixed(2)})`;
-      })
-      .join('\n');
+    const cleanPhone = String(contact.whatsapp).replace(/\D/g, '');
+    const items: any[] = result.items || [];
+    const itemsText = items
+      .map((item: any) => `• ${item.quantity}x *${item.title}* [${item.valeryCode}] ($${(item.price * item.quantity).toFixed(2)})`)
+      .join('\n') || '• (Sin equipo del inventario; requiero asesoría)';
 
-    const totalUSD = (result.b2bItems || []).reduce((acc: number, item: any) => {
-      const prod = liveCatalog.find((p) => p.id === item.productId);
-      return acc + (prod?.price || 0) * item.quantity;
-    }, 0);
+    const totalUSD = items.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
 
     const text = `*PRESUPUESTO FORMAL B2B - ${siteConfig.storeName}*\n===========================\n👤 *Empresa / Cliente:* ${
       clientCompany || 'Particular'
@@ -150,7 +147,7 @@ export function KvaAdvisorModal() {
             <span className="absolute w-full h-full rounded-full bg-cyan-300 animate-ping opacity-75" />
             <Cpu className="w-4 h-4 text-cyan-100 group-hover:rotate-12 transition-transform relative z-10" />
           </div>
-          <span className="drop-shadow-sm font-black relative z-10">Dimensionar Carga (AI)</span>
+          <span className="drop-shadow-sm font-black relative z-10">Calcular Planta / KVA (IA)</span>
         </button>
 
         <button 
@@ -284,23 +281,28 @@ export function KvaAdvisorModal() {
                       Equipos Disponibles en Stock:
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {(result.b2bItems || []).map((item: any) => {
+                      {(result.items || []).length === 0 && (
+                        <p className="text-xs text-slate-400 sm:col-span-2">
+                          No hay un equipo en inventario que cubra esta capacidad. Consulta a un asesor por WhatsApp.
+                        </p>
+                      )}
+                      {(result.items || []).map((item: any) => {
                         const prod = liveCatalog.find((p) => p.id === item.productId);
-                        if (!prod) return null;
                         return (
-                          <div key={prod.id} className="p-4 rounded-xl bg-[#0A101D] border border-white/10 flex flex-col justify-between">
+                          <div key={item.productId} className="p-4 rounded-xl bg-[#0A101D] border border-white/10 flex flex-col justify-between">
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-[9px] font-black text-cyan-400 uppercase tracking-widest">{prod.category}</span>
-                                <span className="text-xs font-black text-white">{formatPrice(prod.price)}</span>
+                                <span className="text-[9px] font-black text-cyan-400 uppercase tracking-widest">{item.category}</span>
+                                <span className="text-xs font-black text-white">{formatPrice(item.price)}</span>
                               </div>
-                              <h4 className="text-sm font-bold text-white mb-2">{prod.title}</h4>
+                              <h4 className="text-sm font-bold text-white mb-1">{item.quantity}x {item.title}</h4>
+                              <p className="text-[10px] text-slate-500 font-bold mb-2">Código Valery: {item.valeryCode} · Stock: {item.stock}</p>
                               <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mb-4">{item.reason}</p>
                             </div>
                             <button
                               type="button"
                               onClick={() => {
-                                addItem({ id: prod.id, title: prod.title, price: prod.price, image: prod.images[0] || '' }, item.quantity || 1);
+                                addItem({ id: item.productId, title: item.title, price: item.price, image: prod?.images[0] || '' }, item.quantity || 1);
                                 toggleCart();
                                 setIsOpen(false);
                               }}
@@ -312,6 +314,32 @@ export function KvaAdvisorModal() {
                         );
                       })}
                     </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {(result.items || []).length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          (result.items || []).forEach((item: any) => {
+                            const prod = liveCatalog.find((p) => p.id === item.productId);
+                            addItem({ id: item.productId, title: item.title, price: item.price, image: prod?.images[0] || '' }, item.quantity || 1);
+                          });
+                          toggleCart();
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 py-3 rounded-lg liquid-glass-active text-white text-[10px] sm:text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer border border-white/20"
+                      >
+                        <ShoppingCart className="w-4 h-4" /> Agregar todos al carrito
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSendQuotationWhatsApp}
+                      className="flex-1 py-3 rounded-lg bg-[#00A859] hover:bg-[#00904C] text-white font-black text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Consultar por WhatsApp
+                    </button>
                   </div>
 
                   <div className="pt-4 border-t border-white/5">

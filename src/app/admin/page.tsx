@@ -852,7 +852,7 @@ export default function AdminPage() {
             {([
               ['phoneDisplay', 'Teléfono principal (visible)', '0414-0909873'],
               ['whatsapp', 'WhatsApp de ventas / atención (con código de país, solo números)', '584140909873'],
-              ['email', 'Correo de contacto', 'ventas@energykva.com'],
+              ['email', 'Correo de contacto', 'contacto@energykva.com'],
               ['address', 'Dirección', 'Guanare, Edo. Portuguesa...'],
             ] as const).map(([key, label, ph]) => (
               <div key={key}>

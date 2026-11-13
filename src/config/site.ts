@@ -32,14 +32,14 @@ export const siteConfig = {
   description:
     'Ingeniería y suministro eléctrico de grado industrial en Guanare, Portuguesa. Transformadores de distribución, respaldo anti-apagones, iluminación solar y protección eléctrica con despacho a toda Venezuela.',
   location: 'Guanare, Edo. Portuguesa - Carrera 11 entre calles 18 y 19',
-  email: 'ventas@energykva.com',
+  email: 'contacto@energykva.com',
   currencySymbol: '$',
   freeShippingThreshold: 50,
   whatsappNumber: '+58 414-0909873',
   contact: {
     whatsapp: '584140909873',
     phoneDisplay: '0414-0909873',
-    email: 'ventas@energykva.com',
+    email: 'contacto@energykva.com',
   },
   whatsapp: {
     number: '584140909873',

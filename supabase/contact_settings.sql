@@ -3,7 +3,7 @@ create table if not exists public.contact_settings (
   id int primary key default 1,
   phone_display text not null default '0414-0909873',
   whatsapp text not null default '584140909873',
-  email text not null default 'ventas@energykva.com',
+  email text not null default 'contacto@energykva.com',
   address text not null default 'Guanare, Edo. Portuguesa - Carrera 11 entre calles 18 y 19',
   updated_at timestamptz default now(),
   constraint single_row check (id = 1)

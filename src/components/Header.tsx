@@ -293,7 +293,11 @@ function HeaderContent() {
                   : branding.logoWhite
               }
               alt={siteConfig.name}
-              className="h-12 sm:h-16 md:h-20 lg:h-24 xl:h-28 w-auto max-w-[150px] sm:max-w-[210px] md:max-w-[250px] lg:max-w-[330px] xl:max-w-[400px] object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left"
+              className={`w-auto max-w-[62vw] md:max-w-none object-contain object-left transition-all duration-300 group-hover:scale-105 drop-shadow-lg origin-left ${
+                useLightHeader
+                  ? 'h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32'
+                  : 'h-20 sm:h-24 md:h-32 lg:h-36 xl:h-44'
+              }`}
             />
           </Link>
 

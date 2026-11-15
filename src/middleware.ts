@@ -23,5 +23,11 @@ export function middleware(request: NextRequest) {
 
 // 3. Esto evita que el código se ejecute en imágenes o archivos internos para que la tienda vuele de rápido
 export const config = {
-  matcher: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  // Solo corre cuando la URL trae ?ref= y no en archivos estáticos (evita invocar el middleware en cada visita)
+  matcher: [
+    {
+      source: '/((?!api|_next|.*\\..*).*)',
+      has: [{ type: 'query', key: 'ref' }],
+    },
+  ],
 }

@@ -51,13 +51,27 @@ export const formatProduct = (item: any): Product => {
   };
 };
 
+const PRODUCT_COLUMNS =
+  'id, valery_code, title, price, category, stock, badge, images, description, features, updated_at';
+// Si alguna columna no existe en la BD, se cae a '*' y se recuerda para no repetir el error.
+let useFullSelect = false;
+
+async function queryProducts() {
+  if (!useFullSelect) {
+    const res = await supabase
+      .from('products')
+      .select(PRODUCT_COLUMNS)
+      .order('title', { ascending: true });
+    if (!res.error) return res;
+    useFullSelect = true;
+  }
+  return supabase.from('products').select('*').order('title', { ascending: true });
+}
+
 export const productService = {
   async getProducts(): Promise<Product[]> {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('title', { ascending: true });
+      const { data, error } = await queryProducts();
 
       if (!error && Array.isArray(data)) {
         const formatted = data.map(formatProduct);
